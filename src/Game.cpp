@@ -11,20 +11,34 @@
 #include "Utility.hpp"
 
 Game::Game() :
-	gameState(GameState::TitleScreen),
+	gameState(GameState::InGame),
 	isPaused(false)
 {
 	initializeWindow();
 }
 
-void Game::run()
+int Game::run()
 {
+	const float FIXED_TIME_STEP = 1.f / 60.f; // Fixed time step per update
+	sf::Clock clock;						  // Clock to measure time
+	float timeSinceLastUpdate = 0.f;		  // Time accumulator for fixed timestep
+	float interpolationFactor = 0.f;		  // Interpolation factor for rendering
+
 	while (window.isOpen())
 	{
+		timeSinceLastUpdate += clock.restart().asSeconds();
 		processInput();
-		update();
+
+		while (timeSinceLastUpdate >= FIXED_TIME_STEP)
+		{
+			update(FIXED_TIME_STEP);
+			timeSinceLastUpdate -= FIXED_TIME_STEP;
+		}
+
+		interpolationFactor = timeSinceLastUpdate / FIXED_TIME_STEP;
 		render();
 	}
+	return 0;
 }
 
 void Game::processInput()
@@ -58,7 +72,7 @@ void Game::processInput()
 	}
 }
 
-void Game::update()
+void Game::update(float fixedTimeStep)
 {
 	switch (gameState)
 	{
@@ -91,7 +105,7 @@ void Game::render()
 	}
 	{
 	case GameState::InGame:
-
+		window.draw(grid);
 		break;
 	}
 	{
