@@ -15,15 +15,15 @@
 class Game
 {
 public:
-	static constexpr unsigned WINDOW_WIDTH = 800U;
-	static constexpr unsigned WINDOW_HEIGHT = 1200U;
+	static constexpr unsigned WINDOW_WIDTH = 850U;
+	static constexpr unsigned WINDOW_HEIGHT = 1100U;
 
 	Game();
-	void run();
+	int run();
 
 private:
 	void processInput();
-	void update();
+	void update(float fixedTimeStep);
 	void render();
 
 	void initializeWindow();
@@ -36,8 +36,6 @@ private:
 	};
 	GameState gameState;
 	bool isPaused;
-
-	sf::Clock clock;
 
 	sf::RenderWindow window;
 	Grid grid;
