@@ -18,6 +18,7 @@ add_executable(
     "src/Utility.cpp"
     "src/Game.cpp"
     "src/Grid.cpp"
-    "src/Cell.cpp")
+    "src/Cell.cpp"
+    "src/Tetromino.cpp" "src/TetrominoGenerator.cpp")
 target_compile_features(main PRIVATE cxx_std_17)
 target_link_libraries(main PRIVATE SFML::Graphics SFML::Window SFML::System SFML::Audio)

@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Grid.hpp"
+#include "TetrominoGenerator.hpp"
 
 class Game
 {
@@ -38,5 +39,26 @@ private:
 	bool isPaused;
 
 	sf::RenderWindow window;
+
 	Grid grid;
+
+	TetrominoGenerator generator;
+	Tetromino currentTetromino, nextTetromino;
+	float tetrominoMovementDelay;
+	float tetrominoMovementTimer;
+
+	enum class HeldKey
+	{
+		None,
+		Left,
+		Right,
+		Down
+	};
+	HeldKey heldKey;
+	HeldKey heldKeyLastFrame;
+
+	bool hasInitialDelayPassed;
+	float initialInputDelay;
+	float heldInputDelay;
+	float inputTimer;
 };

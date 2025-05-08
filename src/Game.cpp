@@ -12,9 +12,23 @@
 
 Game::Game() :
 	gameState(GameState::InGame),
-	isPaused(false)
+	isPaused(false),
+	currentTetromino(generator.getNext()),
+	nextTetromino(generator.getNext()),
+	tetrominoMovementDelay(1.f),
+	tetrominoMovementTimer(0.f),
+	hasInitialDelayPassed(false),
+	initialInputDelay(0.2f),
+	heldInputDelay(0.1f),
+	inputTimer(0.f),
+	heldKey(HeldKey::None),
+	heldKeyLastFrame(HeldKey::None)
 {
 	initializeWindow();
+
+	currentTetromino.updateDrawPosition();
+	nextTetromino.position = sf::Vector2i(12, 2);
+	nextTetromino.updateDrawPosition();
 }
 
 int Game::run()
@@ -61,7 +75,39 @@ void Game::processInput()
 
 		if (isPaused) return;
 
+		if (Utility::isKeyReleased(sf::Keyboard::Key::Space))
+		{
+			currentTetromino = nextTetromino;
+			currentTetromino.position = Tetromino::START_POSITION;
+			nextTetromino = generator.getNext();
 
+			currentTetromino.updateDrawPosition();
+			nextTetromino.position = sf::Vector2i(12, 2);
+			nextTetromino.updateDrawPosition();
+		}
+
+		heldKeyLastFrame = heldKey;
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) ||
+			sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
+		{
+			heldKey = HeldKey::Left;
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) ||
+			sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
+		{
+			heldKey = HeldKey::Right;
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down) ||
+			sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+		{
+			heldKey = HeldKey::Down;
+		}
+		else
+		{
+			heldKey = HeldKey::None;
+			hasInitialDelayPassed = false;
+		}
 
 		break;
 	}
@@ -83,6 +129,57 @@ void Game::update(float fixedTimeStep)
 	{
 	case GameState::InGame:
 		if (isPaused) return;
+
+		if (heldKey != heldKeyLastFrame)
+		{
+			inputTimer = 0.f;
+			hasInitialDelayPassed = false;
+		}
+
+		if (heldKey != HeldKey::None)
+		{
+			inputTimer += fixedTimeStep;
+
+			if (!hasInitialDelayPassed)
+			{
+				if (inputTimer >= initialInputDelay)
+				{
+					inputTimer = 0.f;
+					hasInitialDelayPassed = true;
+				}
+			}
+			else
+			{
+				if (inputTimer >= heldInputDelay)
+				{
+					inputTimer = 0.f;
+					switch (heldKey)
+					{
+					case HeldKey::Left:
+						currentTetromino.position.x -= 1;
+						break;
+					case HeldKey::Right:
+						currentTetromino.position.x += 1;
+						break;
+					case HeldKey::Down:
+						currentTetromino.position.y += 1;
+						break;
+					default:
+						break;
+					}
+					currentTetromino.updateDrawPosition();
+				}
+			}
+		}
+
+		tetrominoMovementTimer += fixedTimeStep;
+
+		if (tetrominoMovementTimer >= tetrominoMovementDelay)
+		{
+			tetrominoMovementTimer = 0.f;
+			currentTetromino.position.y += 1;
+			currentTetromino.updateDrawPosition();
+		}
 
 		break;
 	}
@@ -106,6 +203,8 @@ void Game::render()
 	{
 	case GameState::InGame:
 		window.draw(grid);
+		window.draw(currentTetromino);
+		window.draw(nextTetromino);
 		break;
 	}
 	{

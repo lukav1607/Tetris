@@ -9,15 +9,14 @@
 
 #include "Grid.hpp"
 
-Grid::Grid() :
-	offset({ 50U, 50U })
+Grid::Grid()
 {
 	cells.resize(HEIGHT, std::vector<Cell>(WIDTH));
 	for (unsigned y = 0; y < HEIGHT; ++y)
 	{
 		for (unsigned x = 0; x < WIDTH; ++x)
 		{
-			cells[y][x].shape.setPosition(sf::Vector2f(x * Cell::SIZE + offset.x, y * Cell::SIZE + offset.y));
+			cells[y][x].drawable.setPosition(sf::Vector2f(x * Cell::SIZE + OFFSET.x, y * Cell::SIZE + OFFSET.y));
 		}
 	}
 }
@@ -28,7 +27,7 @@ void Grid::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	{
 		for (unsigned x = 0; x < WIDTH; ++x)
 		{
-			target.draw(cells[y][x].shape);
+			target.draw(cells[y][x].drawable);
 		}
 	}
 }
