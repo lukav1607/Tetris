@@ -1,18 +1,18 @@
 // ================================================================================================
-// File: main.cpp
+// File: Utility.hpp
 // Author: Luka Vukorepa (https://github.com/lukav1607)
 // Created: May 8, 2025
-// Description: Starting point for the project.
+// Description: Defines the Utility namespace, which contains useful utility functions.
 // ================================================================================================
 // License: MIT License
 // Copyright (c) 2025 Luka Vukorepa
 // ================================================================================================
 
-#include "Game.hpp"
+#pragma once
 
-int main()
+#include <SFML/Window/Keyboard.hpp>
+
+namespace Utility
 {
-	Game game;
-	game.run();
-	return 0;
+	bool isKeyReleased(sf::Keyboard::Key key);
 }
