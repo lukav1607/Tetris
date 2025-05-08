@@ -14,6 +14,10 @@ FetchContent_MakeAvailable(SFML)
 
 add_executable(
     main
-    src/main.cpp)
+    "src/main.cpp"
+    "src/Utility.cpp"
+    "src/Game.cpp"
+    "src/Grid.cpp"
+    "src/Cell.cpp")
 target_compile_features(main PRIVATE cxx_std_17)
 target_link_libraries(main PRIVATE SFML::Graphics SFML::Window SFML::System SFML::Audio)

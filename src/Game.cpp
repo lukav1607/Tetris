@@ -1,0 +1,112 @@
+// ================================================================================================
+// File: Game.cpp
+// Author: Luka Vukorepa (https://github.com/lukav1607)
+// Created: May 8, 2025
+// ================================================================================================
+// License: MIT License
+// Copyright (c) 2025 Luka Vukorepa
+// ================================================================================================
+
+#include "Game.hpp"
+#include "Utility.hpp"
+
+Game::Game() :
+	gameState(GameState::TitleScreen),
+	isPaused(false)
+{
+	initializeWindow();
+}
+
+void Game::run()
+{
+	while (window.isOpen())
+	{
+		processInput();
+		update();
+		render();
+	}
+}
+
+void Game::processInput()
+{
+	// Handle window events regardless of current game state
+	while (const std::optional event = window.pollEvent())
+		if (event->is<sf::Event::Closed>())
+			window.close();
+
+	switch (gameState)
+	{
+	{
+	case GameState::TitleScreen:
+		break;
+	}
+	{
+	case GameState::InGame:
+		if (Utility::isKeyReleased(sf::Keyboard::Key::Escape))
+			isPaused = !isPaused;
+
+		if (isPaused) return;
+
+
+
+		break;
+	}
+	{
+	case GameState::GameOver:
+		break;
+	}
+	}
+}
+
+void Game::update()
+{
+	switch (gameState)
+	{
+	{
+	case GameState::TitleScreen:
+		break;
+	}
+	{
+	case GameState::InGame:
+		if (isPaused) return;
+
+		break;
+	}
+	{
+	case GameState::GameOver:
+		break;
+	}
+	}
+}
+
+void Game::render()
+{
+	window.clear();
+
+	switch (gameState)
+	{
+	{
+	case GameState::TitleScreen:
+		break;
+	}
+	{
+	case GameState::InGame:
+
+		break;
+	}
+	{
+	case GameState::GameOver:
+		break;
+	}
+	}
+
+	window.display();
+}
+
+void Game::initializeWindow()
+{
+	sf::ContextSettings settings;
+	settings.antiAliasingLevel = 8;
+	window.create(sf::VideoMode(sf::Vector2u(WINDOW_WIDTH, WINDOW_HEIGHT)), "Tetris", sf::Style::Close, sf::State::Windowed, settings);
+	window.setVerticalSyncEnabled(true);
+}
