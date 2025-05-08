@@ -7,6 +7,7 @@
 // Copyright (c) 2025 Luka Vukorepa
 // ================================================================================================
 
+#include <algorithm>
 #include "TetrominoGenerator.hpp"
 
 TetrominoGenerator::TetrominoGenerator()
