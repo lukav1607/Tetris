@@ -29,6 +29,7 @@ private:
 	void render();
 
 	void initializeWindow();
+	void resetGame();
 
 	// Calculate score based on the number of lines just cleared and the current level and return it as an int
 	int getScoreWorth(int linesCleared);
@@ -51,12 +52,25 @@ private:
 		GameOver
 	};
 	GameState gameState;
+
 	bool isPaused;
+	sf::RectangleShape transparentOverlay;
+	sf::Text pauseTitle;
+	sf::Text pauseText;
+
+	sf::Text titleScreenTitle;
+	sf::Text titleScreenText;
+	sf::Text titleScreenAuthor;
+
+	sf::Text gameOverTitle;
+	sf::Text gameOverScore;
+	sf::Text gameOverText;
 
 	sf::RenderWindow window;
 	sf::Color backgroundColor;
 
-	sf::Font font;
+	sf::Font titleFont;
+	sf::Font textFont;
 	HUD hud;
 
 	sf::RectangleShape topBar;

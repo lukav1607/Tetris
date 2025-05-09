@@ -21,6 +21,7 @@ public:
 	static constexpr sf::Color OUTLINE_COLOR = sf::Color(243, 214, 67);
 
 	Grid();
+	void reset();
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 	void fillCell(sf::Vector2u position, const sf::Color& color);

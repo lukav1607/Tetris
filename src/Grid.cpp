@@ -12,6 +12,18 @@
 
 Grid::Grid()
 {
+	reset();
+
+	outline.setSize(sf::Vector2f(WIDTH * Cell::SIZE + 2, HEIGHT * Cell::SIZE + 2));
+	outline.setPosition({ OFFSET.x - 1, OFFSET.y - 1 });
+	outline.setFillColor(sf::Color::Transparent);
+	outline.setOutlineThickness(2.5f);
+	outline.setOutlineColor(OUTLINE_COLOR);
+}
+
+void Grid::reset()
+{
+	cells.clear();
 	cells.resize(HEIGHT, std::vector<Cell>(WIDTH));
 	for (unsigned y = 0; y < HEIGHT; ++y)
 	{
@@ -20,12 +32,6 @@ Grid::Grid()
 			cells[y][x].drawable.setPosition(sf::Vector2f(x * Cell::SIZE + OFFSET.x, y * Cell::SIZE + OFFSET.y));
 		}
 	}
-
-	outline.setSize(sf::Vector2f(WIDTH * Cell::SIZE + 2, HEIGHT * Cell::SIZE + 2));
-	outline.setPosition({ OFFSET.x - 1, OFFSET.y - 1 });
-	outline.setFillColor(sf::Color::Transparent);
-	outline.setOutlineThickness(2.5f);
-	outline.setOutlineColor(OUTLINE_COLOR);
 }
 
 void Grid::draw(sf::RenderTarget& target, sf::RenderStates states) const

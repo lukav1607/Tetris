@@ -23,6 +23,7 @@ class TetrominoGenerator
 {
 public:
 	TetrominoGenerator();
+	void reset();
 
 	Tetromino::Type getNext();
 

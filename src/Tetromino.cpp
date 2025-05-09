@@ -16,7 +16,7 @@ Tetromino::Tetromino(Tetromino::Type type) :
 	color(COLORS.at(static_cast<int>(type)))
 {
 	updateStartPosition();
-	sf::RectangleShape drawable(sf::Vector2f(Cell::SIZE - 1, Cell::SIZE - 1));
+	sf::RectangleShape drawable(sf::Vector2f(Cell::SIZE - 0.75f, Cell::SIZE - 0.75f));
 	drawable.setFillColor(color);
 	drawables.fill(drawable);
 }

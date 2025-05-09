@@ -15,7 +15,7 @@
 struct Cell : public sf::Drawable
 {
 	static constexpr unsigned SIZE = 50u;
-	static constexpr sf::Color EMPTY_COLOR = sf::Color(25, 26, 27);
+	static constexpr sf::Color EMPTY_COLOR = sf::Color(18, 19, 21);
 
 	Cell() :
 		drawable(sf::Vector2f(SIZE, SIZE)),
@@ -23,8 +23,8 @@ struct Cell : public sf::Drawable
 		isFilled(false)
 	{
 		drawable.setFillColor(color);
-		drawable.setOutlineThickness(1.f);
-		drawable.setOutlineColor(sf::Color::Black);
+		drawable.setOutlineThickness(1.5f);
+		drawable.setOutlineColor(sf::Color(40, 42, 50, 150));
 	}
 	inline void draw(sf::RenderTarget& target, sf::RenderStates states) const override { target.draw(drawable, states); }
 

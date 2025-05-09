@@ -13,11 +13,20 @@
 #include "Utility.hpp"
 
 Game::Game() :
-	gameState(GameState::InGame),
-	backgroundColor(sf::Color(25, 26, 27)),
+	gameState(GameState::TitleScreen),
+	backgroundColor(sf::Color(16, 17, 18)),
 	isPaused(false),
-	font("assets/fonts/seguisb.ttf"),
-	hud(font),
+	titleFont("assets/fonts/seguibl.ttf"),
+	textFont("assets/fonts/seguisb.ttf"),
+	pauseTitle(textFont, "PAUSED", 80),
+	pauseText(textFont, "Press ESC to continue", 40),
+	titleScreenTitle(textFont, "TETRIS", 140),
+	titleScreenText(textFont, "Press ENTER to start", 40),
+	titleScreenAuthor(textFont, "by Luka Vukorepa", 30),
+	gameOverTitle(textFont, "GAME OVER", 80),
+	gameOverScore(textFont, "SCORE: 0", 50),
+	gameOverText(textFont, "    Press ESC to exit\nor ENTER to continue", 40),
+	hud(textFont),
 	score(0),
 	level(0),
 	totalLinesCleared(0),
@@ -62,6 +71,50 @@ Game::Game() :
 	topBarBottomLine.setSize(sf::Vector2f(Grid::WIDTH * Cell::SIZE, 2.5f));
 	topBarBottomLine.setPosition(sf::Vector2f(Grid::OFFSET.x, Grid::OFFSET.y - 3.5f));
 	topBarBottomLine.setFillColor(Grid::OUTLINE_COLOR);
+
+	transparentOverlay.setSize(sf::Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
+	transparentOverlay.setPosition(sf::Vector2f(0.f, 0.f));
+	transparentOverlay.setFillColor(sf::Color(50, 50, 50, 100));
+
+	pauseTitle.setPosition(sf::Vector2f(WINDOW_WIDTH / 2.f - pauseTitle.getGlobalBounds().size.x / 2.f, WINDOW_HEIGHT / 2.f - pauseTitle.getGlobalBounds().size.y));
+	pauseTitle.setFillColor(sf::Color(255, 245, 210));
+	pauseTitle.setOutlineColor(sf::Color::White);
+	pauseTitle.setOutlineThickness(0.5f);
+
+	pauseText.setPosition(sf::Vector2f(WINDOW_WIDTH / 2.f - pauseText.getGlobalBounds().size.x / 2.f, WINDOW_HEIGHT / 2.f + pauseTitle.getGlobalBounds().size.y));
+	pauseText.setFillColor(sf::Color(255, 245, 210));
+	pauseText.setOutlineColor(sf::Color::White);
+	pauseText.setOutlineThickness(0.5f);
+
+	titleScreenTitle.setPosition(sf::Vector2f(WINDOW_WIDTH / 2.f - titleScreenTitle.getGlobalBounds().size.x / 2.f, WINDOW_HEIGHT / 2.f - titleScreenTitle.getGlobalBounds().size.y * 1.5f));
+	titleScreenTitle.setFillColor(sf::Color(255, 245, 210));
+	titleScreenTitle.setOutlineColor(sf::Color::White);
+	titleScreenTitle.setOutlineThickness(1.5f);
+
+	titleScreenText.setPosition(sf::Vector2f(WINDOW_WIDTH / 2.f - titleScreenText.getGlobalBounds().size.x / 2.f, WINDOW_HEIGHT / 2.f + titleScreenText.getGlobalBounds().size.y));
+	titleScreenText.setFillColor(sf::Color(255, 245, 210));
+	titleScreenText.setOutlineColor(sf::Color::White);
+	titleScreenText.setOutlineThickness(0.5f);
+
+	titleScreenAuthor.setPosition(sf::Vector2f(WINDOW_WIDTH / 2.f - titleScreenAuthor.getGlobalBounds().size.x / 2.f, WINDOW_HEIGHT - titleScreenTitle.getGlobalBounds().size.y * 1.5f));
+	titleScreenAuthor.setFillColor(sf::Color(255, 245, 210));
+	titleScreenAuthor.setOutlineColor(sf::Color::White);
+	titleScreenAuthor.setOutlineThickness(0.5f);
+
+	gameOverTitle.setPosition(sf::Vector2f(WINDOW_WIDTH / 2.f - gameOverTitle.getGlobalBounds().size.x / 2.f, WINDOW_HEIGHT / 2.f - gameOverTitle.getGlobalBounds().size.y * 2.f));
+	gameOverTitle.setFillColor(sf::Color(255, 245, 210));
+	gameOverTitle.setOutlineColor(sf::Color::White);
+	gameOverTitle.setOutlineThickness(0.5f);
+
+	gameOverScore.setPosition(sf::Vector2f(WINDOW_WIDTH / 2.f - gameOverScore.getGlobalBounds().size.x / 2.f, WINDOW_HEIGHT / 2.f));
+	gameOverScore.setFillColor(sf::Color(255, 245, 210));
+	gameOverScore.setOutlineColor(sf::Color::White);
+	gameOverScore.setOutlineThickness(0.5f);
+
+	gameOverText.setPosition(sf::Vector2f(WINDOW_WIDTH / 2.f - gameOverText.getGlobalBounds().size.x / 2.f, WINDOW_HEIGHT / 2.f + gameOverTitle.getGlobalBounds().size.y * 2.f));
+	gameOverText.setFillColor(sf::Color(255, 245, 210));
+	gameOverText.setOutlineColor(sf::Color::White);
+	gameOverText.setOutlineThickness(0.5f);
 }
 
 int Game::run()
@@ -97,11 +150,18 @@ void Game::processInput()
 
 	switch (gameState)
 	{
-	{
 	case GameState::TitleScreen:
+		if (Utility::isKeyReleased(sf::Keyboard::Key::Enter))
+		{
+			gameState = GameState::InGame;
+			resetGame();
+		}
+		else if (Utility::isKeyReleased(sf::Keyboard::Key::Escape))
+		{
+			window.close();
+		}
 		break;
-	}
-	{
+
 	case GameState::InGame:
 		// Pause and resume
 		if (Utility::isKeyReleased(sf::Keyboard::Key::Escape) ||
@@ -147,13 +207,18 @@ void Game::processInput()
 			heldKey = HeldKey::None;
 			hasInitialDelayPassed = false;
 		}
+		break;
 
-		break;
-	}
-	{
 	case GameState::GameOver:
+		if (Utility::isKeyReleased(sf::Keyboard::Key::Escape))
+		{
+			window.close();
+		}
+		else if (Utility::isKeyReleased(sf::Keyboard::Key::Enter))
+		{
+			gameState = GameState::TitleScreen;
+		}
 		break;
-	}
 	}
 }
 
@@ -182,7 +247,7 @@ void Game::update(float fixedTimeStep)
 			if (isGameOver())
 			{
 				gameState = GameState::GameOver;
-				std::cout << "Game Over!" << std::endl;
+				gameOverScore.setString("SCORE: " + std::to_string(score));
 			}
 
 			generateNextTetromino();
@@ -226,7 +291,6 @@ void Game::update(float fixedTimeStep)
 			hud.updateScore(score);
 			hud.updateLevel(level);
 			hud.updateLinesCleared(totalLinesCleared);
-			std::cout << "Score: " << score << ", Level: " << level << ", Lines cleared: " << totalLinesCleared << std::endl;
 
 			grid.clearFilledLinesAndPushDown(filledLines);
 			filledLines.clear();
@@ -244,12 +308,14 @@ void Game::render()
 
 	switch (gameState)
 	{
-	{
 	case GameState::TitleScreen:
+		window.draw(titleScreenTitle);
+		window.draw(titleScreenText);
+		window.draw(titleScreenAuthor);
 		break;
-	}
-	{
+
 	case GameState::InGame:
+	case GameState::GameOver:
 		window.draw(topBar);
 		window.draw(grid);
 		window.draw(currentTetromino);
@@ -258,12 +324,21 @@ void Game::render()
 		window.draw(topBar);
 		window.draw(topBarBottomLine);
 		window.draw(hud);
+
+		if (isPaused)
+		{
+			window.draw(transparentOverlay);
+			window.draw(pauseTitle);
+			window.draw(pauseText);
+		}
+		if (isGameOver())
+		{
+			window.draw(transparentOverlay);
+			window.draw(gameOverTitle);
+			window.draw(gameOverScore);
+			window.draw(gameOverText);
+		}
 		break;
-	}
-	{
-	case GameState::GameOver:
-		break;
-	}
 	}
 
 	window.display();
@@ -275,6 +350,36 @@ void Game::initializeWindow()
 	settings.antiAliasingLevel = 8;
 	window.create(sf::VideoMode(sf::Vector2u(WINDOW_WIDTH, WINDOW_HEIGHT)), "Tetris", sf::Style::Close, sf::State::Windowed, settings);
 	window.setVerticalSyncEnabled(true);
+}
+
+void Game::resetGame()
+{
+	isPaused = false;
+	score = 0;
+	level = 0;
+	totalLinesCleared = 0;
+	hud.updateScore(score);
+	hud.updateLevel(level);
+	hud.updateLinesCleared(totalLinesCleared);
+	filledLines.clear();
+	tetrominoMovementDelay = BASE_MOVEMENT_DELAY;
+	tetrominoMovementTimer = 0.f;
+	isTetrominoWaitingForRotation = false;
+	hasTetrominoCollidedDownward = false;
+	areLinesFlashing = false;
+	lineFlashTimer = 0.f;
+	lineFlashPhaseTimer = 0.f;
+	lineFlashPhaseSwitch = false;
+	heldKeyLastFrame = HeldKey::None;
+	heldKey = HeldKey::None;
+	inputTimer = 0.f;
+	wasKeyJustPressed = false;
+	grid.reset();
+	generator.reset();
+	currentTetromino = generator.getNext();
+	nextTetromino = generator.getNext();
+	currentTetromino.updateDrawPosition();
+	positionNextTetromino();
 }
 
 int Game::getScoreWorth(int linesCleared)

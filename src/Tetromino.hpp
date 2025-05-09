@@ -99,13 +99,13 @@ private:
 	}};
 	const std::array<sf::Color, 7> COLORS =
 	{{
-		sf::Color::Cyan,
-		sf::Color::Yellow,
-		sf::Color::Magenta,
-		sf::Color::Green,
-		sf::Color::Red,
-		sf::Color::Blue,
-		sf::Color(255, 165, 0) // Orange
+		sf::Color(0, 255, 255),     // Neon Cyan (I)
+		sf::Color(255, 255, 128),   // Soft Neon Yellow (O)
+		sf::Color(255, 85, 255),    // Neon Magenta (T)
+		sf::Color(0, 255, 128),     // Neon Green (S)
+		sf::Color(255, 80, 80),     // Neon Red (Z)
+		sf::Color(85, 85, 255),     // Neon Blue (J)
+		sf::Color(255, 160, 0)      // Vibrant Orange (L)
 	}};
 
 	// Rotate the tetromino clockwise

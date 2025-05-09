@@ -12,6 +12,13 @@
 
 TetrominoGenerator::TetrominoGenerator()
 {
+	reset();
+}
+
+void TetrominoGenerator::reset()
+{
+	bag1.clear();
+	bag2.clear();
 	bag1.reserve(7);
 	bag2.reserve(7);
 	refillBag(bag1);
