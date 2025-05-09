@@ -7,14 +7,18 @@
 // Copyright (c) 2025 Luka Vukorepa
 // ================================================================================================
 
+#include <iostream>
+#include <cmath>
 #include "Game.hpp"
 #include "Utility.hpp"
 
 Game::Game() :
 	gameState(GameState::InGame),
 	isPaused(false),
+	font("assets/fonts/seguisb.ttf"),
+	hud(font),
 	score(0),
-	level(1),
+	level(0),
 	totalLinesCleared(0),
 	currentTetromino(generator.getNext()),
 	nextTetromino(generator.getNext()),
@@ -39,6 +43,10 @@ Game::Game() :
 	initializeWindow();
 	currentTetromino.updateDrawPosition();
 	positionNextTetromino();
+
+	hud.updateScore(score);
+	hud.updateLevel(level);
+	hud.updateLinesCleared(totalLinesCleared);
 
 	nextTetrominoBox.setSize(sf::Vector2f(5 * Cell::SIZE, 4 * Cell::SIZE));
 	nextTetrominoBox.setPosition(sf::Vector2f(WINDOW_WIDTH - 6 * Cell::SIZE, 2 * Cell::SIZE));
@@ -190,7 +198,7 @@ void Game::update(float fixedTimeStep)
 				areLinesFlashing = false;
 			}
 		}
-		else
+		if (!areLinesFlashing && !filledLines.empty())
 		{			
 			lineFlashTimer = 0.f;
 			lineFlashPhaseTimer = 0.f;
@@ -199,13 +207,18 @@ void Game::update(float fixedTimeStep)
 			totalLinesCleared += filledLines.size();
 			level = totalLinesCleared / LINES_PER_LEVEL;
 
+			hud.updateScore(score);
+			hud.updateLevel(level);
+			hud.updateLinesCleared(totalLinesCleared);
+			std::cout << "Score: " << score << ", Level: " << level << ", Lines cleared: " << totalLinesCleared << std::endl;
+
 			grid.clearFilledLinesAndPushDown(filledLines);
 			filledLines.clear();
 		}
 		break;
 
 	case GameState::GameOver:
-		break;	
+		break;
 	}
 }
 
@@ -225,6 +238,7 @@ void Game::render()
 		window.draw(currentTetromino);
 		window.draw(nextTetrominoBox);
 		window.draw(nextTetromino);
+		window.draw(hud);
 		break;
 	}
 	{
@@ -249,7 +263,7 @@ int Game::getScoreWorth(int linesCleared)
 	if (linesCleared < 1 || linesCleared > 4)
 		return 0;
 
-	return baseScoresPerLine.at(linesCleared - 1) * level;
+	return baseScoresPerLine.at(linesCleared - 1) * (level + 1);
 }
 
 void Game::updateTetrominoMovement(float fixedTimeStep)

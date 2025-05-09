@@ -12,6 +12,7 @@
 
 #include "Grid.hpp"
 #include "TetrominoGenerator.hpp"
+#include "HUD.hpp"
 
 class Game
 {
@@ -51,6 +52,9 @@ private:
 	bool isPaused;
 
 	sf::RenderWindow window;
+
+	sf::Font font;
+	HUD hud;
 
 	const int LINES_PER_LEVEL = 8; // Number of lines to clear to level up
 	int score;
