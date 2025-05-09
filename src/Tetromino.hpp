@@ -18,7 +18,7 @@
 class Tetromino : public sf::Drawable
 {
 public:
-	static constexpr sf::Vector2f START_POSITION = { 3.f, 0.f };
+	static constexpr sf::Vector2f START_POSITION = { 3.f, -1.f };
 
 	using Shape = std::array<std::array<bool, 4>, 4>;
 	enum class Type { I, O, T, S, Z, J, L };

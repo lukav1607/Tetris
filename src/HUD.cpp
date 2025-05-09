@@ -11,9 +11,9 @@
 #include "Grid.hpp"
 
 HUD::HUD(const sf::Font& font) :
-	score(font, "SCORE: 0", 40),
-	level(font, "LEVEL: 1", 40),
-	linesCleared(font, "LINES: 0", 40),
+	score(font, "SCORE: 0", 32),
+	level(font, "LEVEL: 1", 32),
+	linesCleared(font, "LINES: 0", 32),
 	nextTetromino(font, "NEXT SHAPE", 30),
 	textColor(sf::Color(255, 245, 210))
 {

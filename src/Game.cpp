@@ -8,12 +8,13 @@
 // ================================================================================================
 
 #include <iostream>
-#include <cmath>
+#include <algorithm>
 #include "Game.hpp"
 #include "Utility.hpp"
 
 Game::Game() :
 	gameState(GameState::InGame),
+	backgroundColor(sf::Color(25, 26, 27)),
 	isPaused(false),
 	font("assets/fonts/seguisb.ttf"),
 	hud(font),
@@ -22,7 +23,7 @@ Game::Game() :
 	totalLinesCleared(0),
 	currentTetromino(generator.getNext()),
 	nextTetromino(generator.getNext()),
-	tetrominoMovementDelay(1.f),
+	tetrominoMovementDelay(BASE_MOVEMENT_DELAY),
 	tetrominoMovementTimer(0.f),
 	isTetrominoWaitingForRotation(false),
 	hasTetrominoCollidedDownward(false),
@@ -53,6 +54,14 @@ Game::Game() :
 	nextTetrominoBox.setFillColor(Cell::EMPTY_COLOR);
 	nextTetrominoBox.setOutlineThickness(2.5f);
 	nextTetrominoBox.setOutlineColor(Grid::OUTLINE_COLOR);
+
+	topBar.setSize(sf::Vector2f(WINDOW_WIDTH, Grid::OFFSET.y - 4));
+	topBar.setPosition(sf::Vector2f(0.f, 0.f));
+	topBar.setFillColor(backgroundColor);
+
+	topBarBottomLine.setSize(sf::Vector2f(Grid::WIDTH * Cell::SIZE, 2.5f));
+	topBarBottomLine.setPosition(sf::Vector2f(Grid::OFFSET.x, Grid::OFFSET.y - 3.5f));
+	topBarBottomLine.setFillColor(Grid::OUTLINE_COLOR);
 }
 
 int Game::run()
@@ -169,7 +178,13 @@ void Game::update(float fixedTimeStep)
 		
 		if (hasTetrominoCollidedDownward)
 		{
-			lockTetromino();			
+			lockTetromino();
+			if (isGameOver())
+			{
+				gameState = GameState::GameOver;
+				std::cout << "Game Over!" << std::endl;
+			}
+
 			generateNextTetromino();
 			hasTetrominoCollidedDownward = false;
 
@@ -206,6 +221,7 @@ void Game::update(float fixedTimeStep)
 			score += getScoreWorth(filledLines.size());
 			totalLinesCleared += filledLines.size();
 			level = totalLinesCleared / LINES_PER_LEVEL;
+			tetrominoMovementDelay = std::max(MINIMUM_MOVEMENT_DELAY, BASE_MOVEMENT_DELAY - (level * MOVEMENT_DELAY_DECREASE));
 
 			hud.updateScore(score);
 			hud.updateLevel(level);
@@ -224,7 +240,7 @@ void Game::update(float fixedTimeStep)
 
 void Game::render()
 {
-	window.clear(sf::Color(23, 23, 24));
+	window.clear(backgroundColor);
 
 	switch (gameState)
 	{
@@ -234,10 +250,13 @@ void Game::render()
 	}
 	{
 	case GameState::InGame:
+		window.draw(topBar);
 		window.draw(grid);
 		window.draw(currentTetromino);
 		window.draw(nextTetrominoBox);
 		window.draw(nextTetromino);
+		window.draw(topBar);
+		window.draw(topBarBottomLine);
 		window.draw(hud);
 		break;
 	}
@@ -264,6 +283,16 @@ int Game::getScoreWorth(int linesCleared)
 		return 0;
 
 	return baseScoresPerLine.at(linesCleared - 1) * (level + 1);
+}
+
+bool Game::isGameOver() const
+{
+	for (unsigned x = 0; x < Grid::WIDTH; ++x)
+	{
+		if (grid.isCellFilled({ x, 0 }))
+			return true;
+	}
+	return false;
 }
 
 void Game::updateTetrominoMovement(float fixedTimeStep)

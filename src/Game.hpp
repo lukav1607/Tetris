@@ -33,6 +33,8 @@ private:
 	// Calculate score based on the number of lines just cleared and the current level and return it as an int
 	int getScoreWorth(int linesCleared);
 
+	bool isGameOver() const;
+
 	// Update the tetromino movement based on user input and automatic movement
 	void updateTetrominoMovement(float fixedTimeStep);
 	// Lock the tetromino in place
@@ -52,11 +54,15 @@ private:
 	bool isPaused;
 
 	sf::RenderWindow window;
+	sf::Color backgroundColor;
 
 	sf::Font font;
 	HUD hud;
 
-	const int LINES_PER_LEVEL = 8; // Number of lines to clear to level up
+	sf::RectangleShape topBar;
+	sf::RectangleShape topBarBottomLine;
+
+	const int LINES_PER_LEVEL = 10; // Number of lines to clear to level up
 	int score;
 	int level;
 	int totalLinesCleared;
@@ -76,6 +82,9 @@ private:
 
 	TetrominoGenerator generator;
 	Tetromino currentTetromino, nextTetromino;
+	const float BASE_MOVEMENT_DELAY = 1.f; // Base delay between automatic tetromino movements
+	const float MINIMUM_MOVEMENT_DELAY = 0.1f; // Minimum delay between automatic tetromino movements
+	const float MOVEMENT_DELAY_DECREASE = 0.12f; // Movement delay decrease per level
 	float tetrominoMovementDelay; // Delay between automatic tetromino movements
 	float tetrominoMovementTimer; // Timer for automatic tetromino movement
 
