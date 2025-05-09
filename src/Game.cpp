@@ -18,8 +18,8 @@ Game::Game() :
 	tetrominoMovementDelay(1.f),
 	tetrominoMovementTimer(0.f),
 	hasInitialDelayPassed(false),
-	initialInputDelay(0.2f),
-	heldInputDelay(0.1f),
+	initialInputDelay(0.15f),
+	heldInputDelay(0.05f),
 	inputTimer(0.f),
 	heldKey(HeldKey::None),
 	heldKeyLastFrame(HeldKey::None)
@@ -75,6 +75,7 @@ void Game::processInput()
 
 		if (isPaused) return;
 
+		// Debugging controls
 		if (Utility::isKeyReleased(sf::Keyboard::Key::Space))
 		{
 			currentTetromino = nextTetromino;
@@ -130,56 +131,7 @@ void Game::update(float fixedTimeStep)
 	case GameState::InGame:
 		if (isPaused) return;
 
-		if (heldKey != heldKeyLastFrame)
-		{
-			inputTimer = 0.f;
-			hasInitialDelayPassed = false;
-		}
-
-		if (heldKey != HeldKey::None)
-		{
-			inputTimer += fixedTimeStep;
-
-			if (!hasInitialDelayPassed)
-			{
-				if (inputTimer >= initialInputDelay)
-				{
-					inputTimer = 0.f;
-					hasInitialDelayPassed = true;
-				}
-			}
-			else
-			{
-				if (inputTimer >= heldInputDelay)
-				{
-					inputTimer = 0.f;
-					switch (heldKey)
-					{
-					case HeldKey::Left:
-						currentTetromino.position.x -= 1;
-						break;
-					case HeldKey::Right:
-						currentTetromino.position.x += 1;
-						break;
-					case HeldKey::Down:
-						currentTetromino.position.y += 1;
-						break;
-					default:
-						break;
-					}
-					currentTetromino.updateDrawPosition();
-				}
-			}
-		}
-
-		tetrominoMovementTimer += fixedTimeStep;
-
-		if (tetrominoMovementTimer >= tetrominoMovementDelay)
-		{
-			tetrominoMovementTimer = 0.f;
-			currentTetromino.position.y += 1;
-			currentTetromino.updateDrawPosition();
-		}
+		updateTetrominoMovement(fixedTimeStep);
 
 		break;
 	}
@@ -222,4 +174,66 @@ void Game::initializeWindow()
 	settings.antiAliasingLevel = 8;
 	window.create(sf::VideoMode(sf::Vector2u(WINDOW_WIDTH, WINDOW_HEIGHT)), "Tetris", sf::Style::Close, sf::State::Windowed, settings);
 	window.setVerticalSyncEnabled(true);
+}
+
+void Game::updateTetrominoMovement(float fixedTimeStep)
+{
+	/* INPUT */
+	// If held key is changed, reset the input timer
+	if (heldKey != heldKeyLastFrame)
+	{
+		inputTimer = 0.f;
+		hasInitialDelayPassed = false;
+	}
+	// If a key is held down
+	if (heldKey != HeldKey::None)
+	{
+		inputTimer += fixedTimeStep;
+
+		// Check if the initial delay has passed and prevent movement until it has,
+		// except for the Down key, which doesn't have an initial delay
+		if (!hasInitialDelayPassed &&
+			heldKey != HeldKey::Down)
+		{
+			if (inputTimer >= initialInputDelay)
+			{
+				inputTimer = 0.f;
+				hasInitialDelayPassed = true;
+			}
+		}
+		// Else, if the initial delay has passed, allow movement
+		else
+		{
+			// Time between movements must be heldInputDelay seconds
+			if (inputTimer >= heldInputDelay)
+			{
+				inputTimer = 0.f;
+				switch (heldKey)
+				{
+				case HeldKey::Left:
+					currentTetromino.position.x -= 1;
+					break;
+				case HeldKey::Right:
+					currentTetromino.position.x += 1;
+					break;
+				case HeldKey::Down:
+					currentTetromino.position.y += 1;
+					break;
+				default:
+					break;
+				}
+				currentTetromino.updateDrawPosition();
+			}
+		}
+	}
+
+	/* AUTOMATIC MOVEMENT */
+	// Move the tetromino down automatically every tetrominoMovementDelay seconds
+	tetrominoMovementTimer += fixedTimeStep;
+	if (tetrominoMovementTimer >= tetrominoMovementDelay)
+	{
+		tetrominoMovementTimer = 0.f;
+		currentTetromino.position.y += 1;
+		currentTetromino.updateDrawPosition();
+	}
 }

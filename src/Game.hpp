@@ -28,6 +28,7 @@ private:
 	void render();
 
 	void initializeWindow();
+	void updateTetrominoMovement(float fixedTimeStep);
 
 	enum class GameState
 	{
@@ -44,8 +45,8 @@ private:
 
 	TetrominoGenerator generator;
 	Tetromino currentTetromino, nextTetromino;
-	float tetrominoMovementDelay;
-	float tetrominoMovementTimer;
+	float tetrominoMovementDelay; // Delay between automatic tetromino movements
+	float tetrominoMovementTimer; // Timer for automatic tetromino movement
 
 	enum class HeldKey
 	{
@@ -58,7 +59,7 @@ private:
 	HeldKey heldKeyLastFrame;
 
 	bool hasInitialDelayPassed;
-	float initialInputDelay;
-	float heldInputDelay;
-	float inputTimer;
+	float initialInputDelay; // Delay before the first input is registered (not applied to Down key)
+	float heldInputDelay; // Delay between inputs while a key is held down after the initial delay
+	float inputTimer; // Timer for input delay
 };
