@@ -17,7 +17,7 @@
 class Tetromino : public sf::Drawable
 {
 public:
-	static constexpr sf::Vector2i START_POSITION = { 3, 0 };
+	static constexpr sf::Vector2f START_POSITION = { 3.f, 0.f };
 
 	using Shape = std::array<std::array<bool, 4>, 4>;
 	enum class Type { I, O, T, S, Z, J, L };
@@ -28,11 +28,16 @@ public:
 	void updateDrawPosition();
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
-	void rotate();
+	// Rotate the tetromino clockwise
+	void rotateCW();
+	// Rotate the tetromino counter-clockwise
+	void rotateCCW();
+
 	const Shape& getShape() const { return shape; }
 	const Type& getType() const { return type; }
+	const sf::Color& getColor() const { return color; }
 
-	sf::Vector2i position; // Top-left corner of the tetromino in the grid
+	sf::Vector2f position; // Top-left corner of the tetromino in the grid
 
 private:
 	const std::array<Shape, 7> SHAPES =
@@ -101,4 +106,5 @@ private:
 	std::array<sf::RectangleShape, 4> drawables;
 	Shape shape;
 	Type type;
+	sf::Color color;
 };

@@ -15,14 +15,15 @@
 struct Cell : public sf::Drawable
 {
 	static constexpr unsigned SIZE = 50u;
+	static constexpr sf::Color EMPTY_COLOR = sf::Color(25, 26, 27);
 
 	Cell() :
 		drawable(sf::Vector2f(SIZE, SIZE)),
 		isFilled(false)
 	{
-		drawable.setFillColor(sf::Color::Black);
+		drawable.setFillColor(EMPTY_COLOR);
 		drawable.setOutlineThickness(1.f);
-		drawable.setOutlineColor(sf::Color::White);
+		drawable.setOutlineColor(sf::Color::Black);
 	}
 	inline void draw(sf::RenderTarget& target, sf::RenderStates states) const override { target.draw(drawable, states); }
 
