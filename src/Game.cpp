@@ -13,6 +13,9 @@
 Game::Game() :
 	gameState(GameState::InGame),
 	isPaused(false),
+	score(0),
+	level(1),
+	totalLinesCleared(0),
 	currentTetromino(generator.getNext()),
 	nextTetromino(generator.getNext()),
 	tetrominoMovementDelay(1.f),
@@ -191,6 +194,11 @@ void Game::update(float fixedTimeStep)
 		{			
 			lineFlashTimer = 0.f;
 			lineFlashPhaseTimer = 0.f;
+
+			score += getScoreWorth(filledLines.size());
+			totalLinesCleared += filledLines.size();
+			level = totalLinesCleared / LINES_PER_LEVEL;
+
 			grid.clearFilledLinesAndPushDown(filledLines);
 			filledLines.clear();
 		}
@@ -234,6 +242,14 @@ void Game::initializeWindow()
 	settings.antiAliasingLevel = 8;
 	window.create(sf::VideoMode(sf::Vector2u(WINDOW_WIDTH, WINDOW_HEIGHT)), "Tetris", sf::Style::Close, sf::State::Windowed, settings);
 	window.setVerticalSyncEnabled(true);
+}
+
+int Game::getScoreWorth(int linesCleared)
+{
+	if (linesCleared < 1 || linesCleared > 4)
+		return 0;
+
+	return baseScoresPerLine.at(linesCleared - 1) * level;
 }
 
 void Game::updateTetrominoMovement(float fixedTimeStep)

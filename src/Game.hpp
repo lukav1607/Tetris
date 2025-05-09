@@ -28,6 +28,10 @@ private:
 	void render();
 
 	void initializeWindow();
+
+	// Calculate score based on the number of lines just cleared and the current level and return it as an int
+	int getScoreWorth(int linesCleared);
+
 	// Update the tetromino movement based on user input and automatic movement
 	void updateTetrominoMovement(float fixedTimeStep);
 	// Lock the tetromino in place
@@ -47,6 +51,20 @@ private:
 	bool isPaused;
 
 	sf::RenderWindow window;
+
+	const int LINES_PER_LEVEL = 8; // Number of lines to clear to level up
+	int score;
+	int level;
+	int totalLinesCleared;
+
+	// Score per line cleared in a single move
+	const std::array<int, 4> baseScoresPerLine =
+	{{
+		{ 40 },  // 1 line cleared
+		{ 100 }, // 2 lines cleared
+		{ 300 }, // 3 lines cleared
+		{ 1200 } // 4 lines cleared
+	}};
 
 	sf::RectangleShape nextTetrominoBox;
 
