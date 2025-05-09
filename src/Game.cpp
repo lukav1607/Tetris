@@ -218,7 +218,7 @@ void Game::update(float fixedTimeStep)
 			lineFlashTimer = 0.f;
 			lineFlashPhaseTimer = 0.f;
 
-			score += getScoreWorth(filledLines.size());
+			score += getScoreWorth(filledLines.size());	
 			totalLinesCleared += filledLines.size();
 			level = totalLinesCleared / LINES_PER_LEVEL;
 			tetrominoMovementDelay = std::max(MINIMUM_MOVEMENT_DELAY, BASE_MOVEMENT_DELAY - (level * MOVEMENT_DELAY_DECREASE));

@@ -18,7 +18,6 @@ add_executable(
     "src/Utility.cpp"
     "src/Game.cpp"
     "src/Grid.cpp"
-    "src/Cell.cpp"
     "src/Tetromino.cpp"
     "src/TetrominoGenerator.cpp" "src/HUD.cpp")
 target_compile_features(main PRIVATE cxx_std_17)
