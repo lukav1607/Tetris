@@ -19,14 +19,16 @@ struct Cell : public sf::Drawable
 
 	Cell() :
 		drawable(sf::Vector2f(SIZE, SIZE)),
+		color(EMPTY_COLOR),
 		isFilled(false)
 	{
-		drawable.setFillColor(EMPTY_COLOR);
+		drawable.setFillColor(color);
 		drawable.setOutlineThickness(1.f);
 		drawable.setOutlineColor(sf::Color::Black);
 	}
 	inline void draw(sf::RenderTarget& target, sf::RenderStates states) const override { target.draw(drawable, states); }
 
 	sf::RectangleShape drawable;
+	sf::Color color;
 	bool isFilled;
 };

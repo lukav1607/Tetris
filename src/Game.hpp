@@ -60,9 +60,13 @@ private:
 	bool isTetrominoWaitingForRotation;
 	bool hasTetrominoCollidedDownward;
 
-	float filledLineFlashDuration; // Duration for flashing filled lines
-	float filledLineFlashInterval; // Interval between flashes
-	float filledLineFlashTimer; // Timer for flashing filled lines
+	std::vector<unsigned> filledLines; // Lines that are filled and need to be cleared
+	bool areLinesFlashing;
+	float lineFlashDuration; // Duration for flashing filled lines
+	float lineFlashInterval; // Interval between flashes
+	float lineFlashTimer; // Timer for flashing filled lines
+	float lineFlashPhaseTimer;
+	bool lineFlashPhaseSwitch;
 
 	enum class HeldKey
 	{
@@ -73,6 +77,7 @@ private:
 	};
 	HeldKey heldKey;
 	HeldKey heldKeyLastFrame;
+	bool wasKeyJustPressed;
 
 	bool hasInitialDelayPassed;
 	float initialInputDelay; // Delay before the first input is registered (not applied to Down key)

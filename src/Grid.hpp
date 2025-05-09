@@ -24,6 +24,8 @@ public:
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 	void fillCell(sf::Vector2u position, const sf::Color& color);
+	void overwriteCellDrawColor(sf::Vector2u position, const sf::Color& color);
+	void resetCellDrawColor(sf::Vector2u position);
 
 	// Check for filled lines and return their indices
 	std::vector<unsigned> getFilledLines();

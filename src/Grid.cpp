@@ -104,9 +104,30 @@ void Grid::fillCell(sf::Vector2u position, const sf::Color& color)
 {
 	if (position.x < WIDTH && position.y < HEIGHT)
 	{
-		cells[position.y][position.x].isFilled = true;
+		cells[position.y][position.x].color = color;
 		cells[position.y][position.x].drawable.setFillColor(color);
+		cells[position.y][position.x].isFilled = true;
 	}
 	else
 		std::cerr << "Error: Attempted to fill a cell outside the grid bounds." << std::endl;
+}
+
+void Grid::overwriteCellDrawColor(sf::Vector2u position, const sf::Color& color)
+{
+	if (position.x < WIDTH && position.y < HEIGHT)
+	{
+		cells[position.y][position.x].drawable.setFillColor(color);
+	}
+	else
+		std::cerr << "Error: Attempted to overwrite the color of a cell outside the grid bounds." << std::endl;
+}
+
+void Grid::resetCellDrawColor(sf::Vector2u position)
+{
+	if (position.x < WIDTH && position.y < HEIGHT)
+	{
+		cells[position.y][position.x].drawable.setFillColor(cells[position.y][position.x].color);
+	}
+	else
+		std::cerr << "Error: Attempted to reset the color of a cell outside the grid bounds." << std::endl;
 }

@@ -19,12 +19,19 @@ Game::Game() :
 	tetrominoMovementTimer(0.f),
 	isTetrominoWaitingForRotation(false),
 	hasTetrominoCollidedDownward(false),
+	areLinesFlashing(false),
+	lineFlashDuration(0.4f),
+	lineFlashInterval(0.1f),
+	lineFlashTimer(0.f),
+	lineFlashPhaseTimer(0.f),
+	lineFlashPhaseSwitch(false),
 	hasInitialDelayPassed(false),
-	initialInputDelay(0.1f),
+	initialInputDelay(0.15f),
 	heldInputDelay(0.05f),
 	inputTimer(0.f),
 	heldKey(HeldKey::None),
-	heldKeyLastFrame(HeldKey::None)
+	heldKeyLastFrame(HeldKey::None),
+	wasKeyJustPressed(false)
 {
 	initializeWindow();
 	currentTetromino.updateDrawPosition();
@@ -134,11 +141,9 @@ void Game::update(float fixedTimeStep)
 {
 	switch (gameState)
 	{
-	{
 	case GameState::TitleScreen:
 		break;
-	}
-	{
+
 	case GameState::InGame:
 		if (isPaused) return;
 
@@ -153,20 +158,46 @@ void Game::update(float fixedTimeStep)
 		
 		if (hasTetrominoCollidedDownward)
 		{
-			lockTetromino();
-			auto filledLines = grid.getFilledLines();
-			grid.clearFilledLinesAndPushDown(filledLines);
-
+			lockTetromino();			
 			generateNextTetromino();
 			hasTetrominoCollidedDownward = false;
+
+			filledLines = grid.getFilledLines();
+			if (!filledLines.empty())
+				areLinesFlashing = true;
 		}
 
+		if (areLinesFlashing)
+		{
+			lineFlashTimer += fixedTimeStep;
+			lineFlashPhaseTimer += fixedTimeStep;
+
+			if (lineFlashPhaseTimer >= lineFlashInterval)
+			{
+				lineFlashPhaseTimer = 0.f;
+				lineFlashPhaseSwitch = !lineFlashPhaseSwitch;
+
+				for (const auto& line : filledLines)
+					for (unsigned x = 0; x < Grid::WIDTH; ++x)
+						grid.overwriteCellDrawColor({ x, line }, lineFlashPhaseSwitch ? sf::Color::Transparent : sf::Color::White);
+			}
+
+			if (lineFlashTimer >= lineFlashDuration)
+			{
+				areLinesFlashing = false;
+			}
+		}
+		else
+		{			
+			lineFlashTimer = 0.f;
+			lineFlashPhaseTimer = 0.f;
+			grid.clearFilledLinesAndPushDown(filledLines);
+			filledLines.clear();
+		}
 		break;
-	}
-	{
+
 	case GameState::GameOver:
-		break;
-	}
+		break;	
 	}
 }
 
@@ -208,11 +239,21 @@ void Game::initializeWindow()
 void Game::updateTetrominoMovement(float fixedTimeStep)
 {
 	/* INPUT */
-	// If held key is changed, reset the input timer
-	if (heldKey != heldKeyLastFrame)
+	// If held key was just changed or a key was just pressed
+	if (heldKeyLastFrame != heldKey && heldKey != HeldKey::None)
 	{
 		inputTimer = 0.f;
 		hasInitialDelayPassed = false;
+
+		if (heldKey == HeldKey::Left)
+			currentTetromino.tryMove({ -1, 0 }, grid);
+		else if (heldKey == HeldKey::Right)
+			currentTetromino.tryMove({ 1, 0 }, grid);
+		else if (heldKey == HeldKey::Down)
+			if (!currentTetromino.tryMove({ 0, 1 }, grid))
+				hasTetrominoCollidedDownward = true;
+
+		currentTetromino.updateDrawPosition();
 	}
 	// If a key is held down
 	if (heldKey != HeldKey::None)
@@ -237,37 +278,34 @@ void Game::updateTetrominoMovement(float fixedTimeStep)
 			if (inputTimer >= heldInputDelay)
 			{
 				inputTimer = 0.f;
-				switch (heldKey)
-				{
-				case HeldKey::Left:
+
+				if (heldKey == HeldKey::Left)
 					currentTetromino.tryMove({ -1, 0 }, grid);
-					break;
-
-				case HeldKey::Right:
+				else if (heldKey == HeldKey::Right)
 					currentTetromino.tryMove({ 1, 0 }, grid);
-					break;
-
-				case HeldKey::Down:
+				else if (heldKey == HeldKey::Down)
 					if (!currentTetromino.tryMove({ 0, 1 }, grid))
 						hasTetrominoCollidedDownward = true;
-					break;
-				}
+
 				currentTetromino.updateDrawPosition();
 			}
 		}
 	}
 
 	/* AUTOMATIC MOVEMENT */
-	// Move the tetromino down automatically every tetrominoMovementDelay seconds
-	tetrominoMovementTimer += fixedTimeStep;
-	if (tetrominoMovementTimer >= tetrominoMovementDelay)
+	// Move the tetromino down automatically every tetrominoMovementDelay seconds but only if the Down key is not held
+	if (heldKey != HeldKey::Down)
 	{
-		tetrominoMovementTimer = 0.f;
+		tetrominoMovementTimer += fixedTimeStep;
+		if (tetrominoMovementTimer >= tetrominoMovementDelay)
+		{
+			tetrominoMovementTimer = 0.f;
 
-		if (!currentTetromino.tryMove({ 0, 1 }, grid))
-			hasTetrominoCollidedDownward = true;
+			if (!currentTetromino.tryMove({ 0, 1 }, grid))
+				hasTetrominoCollidedDownward = true;
 
-		currentTetromino.updateDrawPosition();
+			currentTetromino.updateDrawPosition();
+		}
 	}
 }
 
