@@ -31,6 +31,9 @@ private:
 	void initializeWindow();
 	void resetGame();
 
+	void updateTitleColor(float fixedTimeStep);
+	void pulseTitleText(float fixedTimeStep);
+
 	// Calculate score based on the number of lines just cleared and the current level and return it as an int
 	int getScoreWorth(int linesCleared);
 
@@ -61,6 +64,7 @@ private:
 	sf::Text titleScreenTitle;
 	sf::Text titleScreenText;
 	sf::Text titleScreenAuthor;
+	float titleColorTransitionTime; // seconds per transition
 
 	sf::Text gameOverTitle;
 	sf::Text gameOverScore;

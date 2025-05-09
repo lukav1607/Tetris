@@ -11,8 +11,10 @@
 #pragma once
 
 #include <SFML/Window/Keyboard.hpp>
+#include <SFML/Graphics/Color.hpp>
 
 namespace Utility
 {
 	bool isKeyReleased(sf::Keyboard::Key key);
+	sf::Color lerpColor(const sf::Color& a, const sf::Color& b, float t);
 }

@@ -20,3 +20,12 @@ bool Utility::isKeyReleased(sf::Keyboard::Key key)
 	keyStates[key] = isPressedNow;
 	return !isPressedNow && wasPressedLastFrame;
 }
+
+sf::Color Utility::lerpColor(const sf::Color& a, const sf::Color& b, float t)
+{
+	return sf::Color(
+		static_cast<std::uint8_t>(a.r + (b.r - a.r) * t),
+		static_cast<std::uint8_t>(a.g + (b.g - a.g) * t),
+		static_cast<std::uint8_t>(a.b + (b.b - a.b) * t)
+	);
+}

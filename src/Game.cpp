@@ -9,24 +9,26 @@
 
 #include <iostream>
 #include <algorithm>
+#include <cmath>
 #include "Game.hpp"
 #include "Utility.hpp"
 
 Game::Game() :
 	gameState(GameState::TitleScreen),
-	backgroundColor(sf::Color(16, 17, 18)),
+	backgroundColor(sf::Color(17, 17, 18)),
 	isPaused(false),
 	titleFont("assets/fonts/seguibl.ttf"),
 	textFont("assets/fonts/seguisb.ttf"),
 	pauseTitle(textFont, "PAUSED", 80),
 	pauseText(textFont, "Press ESC to continue", 40),
-	titleScreenTitle(textFont, "TETRIS", 140),
+	titleScreenTitle(textFont, "TETRIS", 160),
 	titleScreenText(textFont, "Press ENTER to start", 40),
-	titleScreenAuthor(textFont, "by Luka Vukorepa", 30),
+	titleScreenAuthor(textFont, "by Luka Vukorepa, 2025", 30),
 	gameOverTitle(textFont, "GAME OVER", 80),
 	gameOverScore(textFont, "SCORE: 0", 50),
 	gameOverText(textFont, "    Press ESC to exit\nor ENTER to continue", 40),
 	hud(textFont),
+	titleColorTransitionTime(2.f),
 	score(0),
 	level(0),
 	totalLinesCleared(0),
@@ -89,9 +91,10 @@ Game::Game() :
 	titleScreenTitle.setPosition(sf::Vector2f(WINDOW_WIDTH / 2.f - titleScreenTitle.getGlobalBounds().size.x / 2.f, WINDOW_HEIGHT / 2.f - titleScreenTitle.getGlobalBounds().size.y * 1.5f));
 	titleScreenTitle.setFillColor(sf::Color(255, 245, 210));
 	titleScreenTitle.setOutlineColor(sf::Color::White);
-	titleScreenTitle.setOutlineThickness(1.5f);
+	titleScreenTitle.setOutlineThickness(4.5f);
 
-	titleScreenText.setPosition(sf::Vector2f(WINDOW_WIDTH / 2.f - titleScreenText.getGlobalBounds().size.x / 2.f, WINDOW_HEIGHT / 2.f + titleScreenText.getGlobalBounds().size.y));
+	titleScreenText.setOrigin(sf::Vector2f(titleScreenText.getGlobalBounds().size.x / 2.f, titleScreenText.getGlobalBounds().size.y / 2.f));
+	titleScreenText.setPosition(sf::Vector2f(WINDOW_WIDTH / 2.f, WINDOW_HEIGHT / 2.f + titleScreenTitle.getGlobalBounds().size.y * 0.5f));
 	titleScreenText.setFillColor(sf::Color(255, 245, 210));
 	titleScreenText.setOutlineColor(sf::Color::White);
 	titleScreenText.setOutlineThickness(0.5f);
@@ -227,6 +230,8 @@ void Game::update(float fixedTimeStep)
 	switch (gameState)
 	{
 	case GameState::TitleScreen:
+		updateTitleColor(fixedTimeStep);
+		pulseTitleText(fixedTimeStep);
 		break;
 
 	case GameState::InGame:
@@ -380,6 +385,36 @@ void Game::resetGame()
 	nextTetromino = generator.getNext();
 	currentTetromino.updateDrawPosition();
 	positionNextTetromino();
+}
+
+void Game::updateTitleColor(float fixedTimeStep)
+{
+	static float titleColorTimer = 0.f;
+	static int currentColorIndex = 0.f;
+
+	titleColorTimer += fixedTimeStep;
+	float t = std::min(titleColorTimer / titleColorTransitionTime, 1.f);
+
+	sf::Color start = Tetromino::COLORS[currentColorIndex];
+	sf::Color end = Tetromino::COLORS[(currentColorIndex + 1) % Tetromino::COLORS.size()];
+	sf::Color interpolated = Utility::lerpColor(start, end, t);
+
+	titleScreenTitle.setOutlineColor(interpolated); // assuming `titleText` is your sf::Text
+
+	if (t >= 1.f)
+	{
+		titleColorTimer = 0.f;
+		currentColorIndex = (currentColorIndex + 1) % Tetromino::COLORS.size();
+	}
+}
+
+void Game::pulseTitleText(float fixedTimeStep)
+{
+	static float pulseTimer = 0.f;
+	pulseTimer += fixedTimeStep;
+
+	float scale = 1.f + 0.05f * std::sin(pulseTimer * 2.f);
+	titleScreenText.setScale({ scale, scale });
 }
 
 int Game::getScoreWorth(int linesCleared)
