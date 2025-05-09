@@ -13,9 +13,9 @@
 Tetromino::Tetromino(Tetromino::Type type) :
 	type(type),
 	shape(SHAPES.at(static_cast<int>(type))),
-	color(COLORS.at(static_cast<int>(type))),
-	position(START_POSITION)
+	color(COLORS.at(static_cast<int>(type)))
 {
+	updateStartPosition();
 	sf::RectangleShape drawable(sf::Vector2f(Cell::SIZE - 1, Cell::SIZE - 1));
 	drawable.setFillColor(color);
 	drawables.fill(drawable);
@@ -32,6 +32,16 @@ Tetromino& Tetromino::operator=(const Tetromino& other)
 		drawables = other.drawables;
 	}
 	return *this;
+}
+
+void Tetromino::updateStartPosition()
+{
+	if (this->type == Type::I)
+		position = START_POSITION + sf::Vector2f(0.f, -1.f);
+	else if (this->type == Type::O)
+		position = START_POSITION + sf::Vector2f(1.f, 0.f);
+	else
+		position = START_POSITION;
 }
 
 void Tetromino::updateDrawPosition()
@@ -56,19 +66,85 @@ void Tetromino::draw(sf::RenderTarget& target, sf::RenderStates states) const
 		target.draw(drawable);
 }
 
+bool Tetromino::tryMove(sf::Vector2i offset, const Grid& grid)
+{
+	position += sf::Vector2f(offset);
+	if (isAtValidPosition(grid))
+		return true;
+	position -= sf::Vector2f(offset);
+	return false;
+}
+
+bool Tetromino::tryRotateCW(const Grid& grid)
+{
+	Shape original = shape;
+	sf::Vector2f originalPosition = position;
+
+	rotateCW();
+
+	if (isAtValidPosition(grid)) 
+		return true;
+
+	// Try small adjustments to the position if the rotation fails
+	const std::vector<sf::Vector2f> offsets =
+	{
+		{ -1, 0 }, { 1, 0 }, { -2, 0 }, { 2, 0 }//, { 0, 1 }
+	};
+
+	for (const auto& offset : offsets)
+	{
+		position += offset;
+		if (isAtValidPosition(grid))
+			return true;
+		position = originalPosition;
+	}
+
+	// If all attempts fail, revert to the original shape and position
+	shape = original;
+	position = originalPosition;
+	return false;
+}
+
 void Tetromino::rotateCW()
 {
+	// O tetromino does not change shape when rotated
+	if (type == Type::O)
+		return;
+
 	Shape rotatedShape{};
 
-	for (unsigned y = 0; y < 4; ++y)
+	// I tetromino rotates around center, but due to its straight shape we handle it specially
+	if (type == Type::I)
 	{
-		for (unsigned x = 0; x < 4; ++x)
+		// 2-state toggle rotation (simplified for classic 1D I shape)
+		bool horizontal = shape[1][0] == 1;
+		if (horizontal)
 		{
-			rotatedShape[x][3 - y] = shape[y][x];
+			// Rotate to vertical
+			for (int i = 0; i < 4; ++i)
+				rotatedShape[i][1] = 1;
+		}
+		else
+		{
+			// Rotate to horizontal
+			for (int i = 0; i < 4; ++i)
+				rotatedShape[1][i] = 1;
 		}
 	}
-	shape = rotatedShape;
+	// For all other tetrominoes
+	else
+	{
+		// Rotate the 3x3 submatrix inside the 4x4 matrix
+		for (unsigned y = 0; y < 3; ++y)
+		{
+			for (unsigned x = 0; x < 3; ++x)
+			{
+				rotatedShape[x][size_t(2 - y)] = shape[y][x];
+			}
+		}
+	}
 
+	shape = rotatedShape;
 }
 
 void Tetromino::rotateCCW()
@@ -79,8 +155,33 @@ void Tetromino::rotateCCW()
 	{
 		for (unsigned x = 0; x < 4; ++x)
 		{
-			rotatedShape[3 - x][y] = shape[y][x];
+			rotatedShape[size_t(3 - x)][y] = shape[y][x];
 		}
 	}
 	shape = rotatedShape;
+}
+
+bool Tetromino::isAtValidPosition(const Grid& grid) const
+{
+	for (unsigned y = 0; y < 4; ++y)
+	{
+		for (unsigned x = 0; x < 4; ++x)
+		{
+			if (shape[y][x])
+			{
+				int gridX = static_cast<int>(position.x) + x;
+				int gridY = static_cast<int>(position.y) + y;
+
+				// Check if the position is outside the grid bounds
+				if (gridX < 0 || gridX >= Grid::WIDTH || gridY < 0 || gridY >= Grid::HEIGHT)
+					return false;
+
+				// Check if the cell is already filled
+				if (grid.isCellFilled(sf::Vector2u(gridX, gridY)))
+					return false;
+			}
+		}
+	}
+	// If all checks pass, the position is valid
+	return true;
 }

@@ -77,13 +77,26 @@ void Grid::clearFilledLinesAndPushDown(const std::vector<unsigned>& filledLines)
 			{
 				if (cells[y][x].isFilled)
 				{
-					cells[y + 1][x].isFilled = true;
-					cells[y + 1][x].drawable.setFillColor(cells[y][x].drawable.getFillColor());
+					cells[size_t(y + 1)][x].isFilled = true;
+					cells[size_t(y + 1)][x].drawable.setFillColor(cells[y][x].drawable.getFillColor());
 					cells[y][x].isFilled = false;
 					cells[y][x].drawable.setFillColor(Cell::EMPTY_COLOR);
 				}
 			}
 		}
+	}
+}
+
+bool Grid::isCellFilled(sf::Vector2u position) const
+{
+	if (position.x < WIDTH && position.y < HEIGHT)
+	{
+		return cells[position.y][position.x].isFilled;
+	}
+	else
+	{
+		std::cerr << "Error: Attempted to check a cell outside the grid bounds." << std::endl;
+		return false;
 	}
 }
 
@@ -96,32 +109,4 @@ void Grid::fillCell(sf::Vector2u position, const sf::Color& color)
 	}
 	else
 		std::cerr << "Error: Attempted to fill a cell outside the grid bounds." << std::endl;
-}
-
-bool Grid::isTetrominoAtValidPosition(const Tetromino& tetromino)
-{
-	const auto& shape = tetromino.getShape();
-	const auto& pos = tetromino.position;
-
-	for (unsigned y = 0; y < 4; ++y)
-	{
-		for (unsigned x = 0; x < 4; ++x)
-		{
-			if (shape[y][x])
-			{
-				int gridX = static_cast<int>(pos.x) + x;
-				int gridY = static_cast<int>(pos.y) + y;
-
-				// Check if the position is outside the grid bounds
-				if (gridX < 0 || gridX >= WIDTH || gridY < 0 || gridY >= HEIGHT)
-					return false;
-
-				// Check if the cell is already filled
-				if (cells[gridY][gridX].isFilled)
-					return false;
-			}
-		}
-	}
-	// If all checks pass, the position is valid
-	return true;
 }

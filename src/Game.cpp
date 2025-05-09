@@ -76,14 +76,17 @@ void Game::processInput()
 	}
 	{
 	case GameState::InGame:
+		// Pause and resume
 		if (Utility::isKeyReleased(sf::Keyboard::Key::Escape) ||
 			Utility::isKeyReleased(sf::Keyboard::Key::P))
 		{
 			isPaused = !isPaused;
 		}
 
+		// Prevent other input while paused
 		if (isPaused) return;
 
+		// Rotation
 		if (Utility::isKeyReleased(sf::Keyboard::Key::Space) ||
 			Utility::isKeyReleased(sf::Keyboard::Key::R) ||
 			Utility::isKeyReleased(sf::Keyboard::Key::Up) ||
@@ -94,16 +97,19 @@ void Game::processInput()
 
 		heldKeyLastFrame = heldKey;
 
+		// Move left
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) ||
 			sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
 		{
 			heldKey = HeldKey::Left;
 		}
+		// Move right
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) ||
 			sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
 		{
 			heldKey = HeldKey::Right;
 		}
+		// Move down
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down) ||
 			sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
 		{
@@ -140,11 +146,7 @@ void Game::update(float fixedTimeStep)
 
 		if (isTetrominoWaitingForRotation)
 		{
-			currentTetromino.rotateCCW();
-			if (!grid.isTetrominoAtValidPosition(currentTetromino))
-			{
-				currentTetromino.rotateCW();
-			}
+			currentTetromino.tryRotateCW(grid);
 			currentTetromino.updateDrawPosition();
 			isTetrominoWaitingForRotation = false;
 		}
@@ -238,28 +240,16 @@ void Game::updateTetrominoMovement(float fixedTimeStep)
 				switch (heldKey)
 				{
 				case HeldKey::Left:
-					currentTetromino.position.x -= 1;
-					if (!grid.isTetrominoAtValidPosition(currentTetromino))
-					{
-						currentTetromino.position.x += 1;
-					}
+					currentTetromino.tryMove({ -1, 0 }, grid);
 					break;
+
 				case HeldKey::Right:
-					currentTetromino.position.x += 1;
-					if (!grid.isTetrominoAtValidPosition(currentTetromino))
-					{
-						currentTetromino.position.x -= 1;
-					}
+					currentTetromino.tryMove({ 1, 0 }, grid);
 					break;
+
 				case HeldKey::Down:
-					currentTetromino.position.y += 1;
-					if (!grid.isTetrominoAtValidPosition(currentTetromino))
-					{
-						currentTetromino.position.y -= 1;
+					if (!currentTetromino.tryMove({ 0, 1 }, grid))
 						hasTetrominoCollidedDownward = true;
-					}
-					break;
-				default:
 					break;
 				}
 				currentTetromino.updateDrawPosition();
@@ -273,12 +263,10 @@ void Game::updateTetrominoMovement(float fixedTimeStep)
 	if (tetrominoMovementTimer >= tetrominoMovementDelay)
 	{
 		tetrominoMovementTimer = 0.f;
-		currentTetromino.position.y += 1;
-		if (!grid.isTetrominoAtValidPosition(currentTetromino))
-		{
-			currentTetromino.position.y -= 1;
+
+		if (!currentTetromino.tryMove({ 0, 1 }, grid))
 			hasTetrominoCollidedDownward = true;
-		}
+
 		currentTetromino.updateDrawPosition();
 	}
 }
@@ -305,7 +293,7 @@ void Game::lockTetromino()
 void Game::generateNextTetromino()
 {
 	currentTetromino = nextTetromino;
-	currentTetromino.position = Tetromino::START_POSITION;
+	currentTetromino.updateStartPosition();
 	currentTetromino.updateDrawPosition();
 	nextTetromino = generator.getNext();
 	positionNextTetromino();
@@ -314,7 +302,7 @@ void Game::generateNextTetromino()
 void Game::positionNextTetromino()
 {
 	if (nextTetromino.getType() == Tetromino::Type::I)
-		nextTetromino.position = sf::Vector2f(11.5f, 2.5f);
+		nextTetromino.position = sf::Vector2f(11.5f, 1.5f);
 	else if (nextTetromino.getType() == Tetromino::Type::O)
 		nextTetromino.position = sf::Vector2f(12.5f, 2.f);
 	else

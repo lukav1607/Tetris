@@ -13,6 +13,7 @@
 #include <array>
 #include <vector>
 #include <SFML/Graphics.hpp>
+#include "Grid.hpp"
 
 class Tetromino : public sf::Drawable
 {
@@ -25,13 +26,17 @@ public:
 	Tetromino(Type type);
 	Tetromino& operator=(const Tetromino& other);
 
+	// Update tetromino start position based on its type
+	void updateStartPosition();
 	void updateDrawPosition();
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
-	// Rotate the tetromino clockwise
-	void rotateCW();
-	// Rotate the tetromino counter-clockwise
-	void rotateCCW();
+	// Try and move the tetromino by the given offset, returning true if successful
+	bool tryMove(sf::Vector2i offset, const Grid& grid);
+	// Try and rotate the tetromino clockwise, returning true if successful
+	bool tryRotateCW(const Grid& grid);
+
+	bool isAtValidPosition(const Grid& tetromino) const;
 
 	const Shape& getShape() const { return shape; }
 	const Type& getType() const { return type; }
@@ -44,8 +49,8 @@ private:
 	{{
 		// I
 		{{
-			{ 1, 1, 1, 1 },
 			{ 0, 0, 0, 0 },
+			{ 1, 1, 1, 1 },
 			{ 0, 0, 0, 0 },
 			{ 0, 0, 0, 0 }
 		}},
@@ -102,6 +107,11 @@ private:
 		sf::Color::Blue,
 		sf::Color(255, 165, 0) // Orange
 	}};
+
+	// Rotate the tetromino clockwise
+	void rotateCW();
+	// Rotate the tetromino counter-clockwise
+	void rotateCCW();
 
 	std::array<sf::RectangleShape, 4> drawables;
 	Shape shape;
