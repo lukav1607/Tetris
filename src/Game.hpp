@@ -37,7 +37,7 @@ private:
 	void pulseTitleText(float fixedTimeStep);
 
 	// Calculate score based on the number of lines just cleared and the current level and return it as an int
-	int getScoreWorth(int linesCleared);
+	int getScoreWorth(unsigned linesCleared);
 
 	bool isGameOver() const;
 
@@ -57,6 +57,8 @@ private:
 		GameOver
 	};
 	GameState gameState;
+
+	bool isRunning;
 
 	bool isPaused;
 	sf::RectangleShape transparentOverlay;
@@ -86,18 +88,18 @@ private:
 	sf::RectangleShape topBar;
 	sf::RectangleShape topBarBottomLine;
 
-	const int LINES_PER_LEVEL = 10; // Number of lines to clear to level up
-	int score;
-	int level;
-	int totalLinesCleared;
+	const unsigned LINES_PER_LEVEL = 10U; // Number of lines to clear to level up
+	unsigned score;
+	unsigned level;
+	unsigned totalLinesCleared;
 
 	// Score per line cleared in a single move
-	const std::array<int, 4> baseScoresPerLine =
+	const std::array<unsigned, 4> baseScoresPerLine =
 	{{
-		{ 40 },  // 1 line cleared
-		{ 100 }, // 2 lines cleared
-		{ 300 }, // 3 lines cleared
-		{ 1200 } // 4 lines cleared
+		{ 40U },  // 1 line cleared
+		{ 100U }, // 2 lines cleared
+		{ 300U }, // 3 lines cleared
+		{ 1200U } // 4 lines cleared
 	}};
 
 	sf::RectangleShape nextTetrominoBox;

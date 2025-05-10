@@ -15,6 +15,7 @@
 
 Game::Game() :
 	gameState(GameState::TitleScreen),
+	isRunning(true),
 	backgroundColor(sf::Color(17, 17, 18)),
 	transparentDefaultOverlayColor(sf::Color(17, 17, 18, 150)),
 	transparentOverlayAlpha(transparentDefaultOverlayColor.a),
@@ -60,7 +61,8 @@ Game::Game() :
 	musicVolume(0.f)
 {
 	initializeWindow();
-	soundManager.loadSounds();
+	music.setLooping(true);
+
 	currentTetromino.updateDrawPosition();
 	positionNextTetromino();
 
@@ -138,7 +140,7 @@ int Game::run()
 	float timeSinceLastUpdate = 0.f;		  // Time accumulator for fixed timestep
 	float interpolationFactor = 0.f;		  // Interpolation factor for rendering
 
-	while (window.isOpen())
+	while (isRunning)
 	{
 		timeSinceLastUpdate += clock.restart().asSeconds();
 		processInput();
@@ -160,7 +162,7 @@ void Game::processInput()
 	// Handle window events regardless of current game state
 	while (const std::optional event = window.pollEvent())
 		if (event->is<sf::Event::Closed>())
-			window.close();
+			isRunning = false;
 
 	switch (gameState)
 	{
@@ -176,7 +178,7 @@ void Game::processInput()
 		}
 		else if (Utility::isKeyReleased(sf::Keyboard::Key::Escape))
 		{
-			window.close();
+			isRunning = false;
 		}
 		break;
 
@@ -247,7 +249,7 @@ void Game::processInput()
 	case GameState::GameOver:
 		if (Utility::isKeyReleased(sf::Keyboard::Key::Escape))
 		{
-			window.close();
+			isRunning = false;
 		}
 		else if (Utility::isKeyReleased(sf::Keyboard::Key::Enter))
 		{
@@ -275,7 +277,7 @@ void Game::update(float fixedTimeStep)
 
 		if (music.getVolume() < baseMusicVolume)
 		{
-			musicVolume += 0.1f;
+			musicVolume += 0.05f;
 			if (music.getVolume() > baseMusicVolume)
 				musicVolume = baseMusicVolume;
 
@@ -383,7 +385,7 @@ void Game::update(float fixedTimeStep)
 		}
 		break;
 	}
-	soundManager.cleanupSounds(fixedTimeStep, 20.f);
+	soundManager.cleanupSounds(fixedTimeStep, 10.f);
 }
 
 void Game::render()
@@ -473,13 +475,13 @@ void Game::resetGame()
 void Game::updateTitleColor(float fixedTimeStep)
 {
 	static float titleColorTimer = 0.f;
-	static int currentColorIndex = 0.f;
+	static unsigned currentColorIndex = 0U;
 
 	titleColorTimer += fixedTimeStep;
 	float t = std::min(titleColorTimer / titleColorTransitionTime, 1.f);
 
-	sf::Color start = Tetromino::COLORS[currentColorIndex];
-	sf::Color end = Tetromino::COLORS[(currentColorIndex + 1) % Tetromino::COLORS.size()];
+	sf::Color start = Tetromino::COLORS.at(currentColorIndex);
+	sf::Color end = Tetromino::COLORS.at((currentColorIndex + 1) % Tetromino::COLORS.size());
 	sf::Color interpolated = Utility::lerpColor(start, end, t);
 
 	titleScreenTitle.setOutlineColor(interpolated); // assuming `titleText` is your sf::Text
@@ -487,7 +489,7 @@ void Game::updateTitleColor(float fixedTimeStep)
 	if (t >= 1.f)
 	{
 		titleColorTimer = 0.f;
-		currentColorIndex = (currentColorIndex + 1) % Tetromino::COLORS.size();
+		currentColorIndex = static_cast<unsigned>((currentColorIndex + 1) % Tetromino::COLORS.size());
 	}
 }
 
@@ -500,12 +502,12 @@ void Game::pulseTitleText(float fixedTimeStep)
 	titleScreenText.setScale({ scale, scale });
 }
 
-int Game::getScoreWorth(int linesCleared)
+int Game::getScoreWorth(unsigned linesCleared)
 {
 	if (linesCleared < 1 || linesCleared > 4)
 		return 0;
 
-	return baseScoresPerLine.at(linesCleared - 1) * (level + 1);
+	return baseScoresPerLine.at((linesCleared - 1) * (level + 1));
 }
 
 bool Game::isGameOver() const

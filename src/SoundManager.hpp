@@ -16,6 +16,10 @@
 class SoundManager
 {
 public:
+	SoundManager() { loadSounds(); }
+	SoundManager(const SoundManager&) = delete;
+	SoundManager& operator=(const SoundManager&) = delete;
+
 	enum class SoundID
 	{
 		GAME_START,

@@ -13,7 +13,7 @@ FetchContent_Declare(SFML
 FetchContent_MakeAvailable(SFML)
 
 add_executable(
-    main
+    "Tetris"
     "src/main.cpp"
     "src/Utility.cpp"
     "src/Game.cpp"
@@ -21,6 +21,8 @@ add_executable(
     "src/Tetromino.cpp"
     "src/TetrominoGenerator.cpp"
     "src/HUD.cpp"
-    "src/TitleScreenShapes.cpp" "src/SoundManager.cpp")
-target_compile_features(main PRIVATE cxx_std_17)
-target_link_libraries(main PRIVATE SFML::Graphics SFML::Window SFML::System SFML::Audio)
+    "src/TitleScreenShapes.cpp"
+    "src/SoundManager.cpp")
+target_compile_features("Tetris" PRIVATE cxx_std_17)
+target_link_libraries("Tetris" PRIVATE SFML::System SFML::Window SFML::Graphics SFML::Audio)
+target_compile_definitions("Tetris" PRIVATE SFML_STATIC)
