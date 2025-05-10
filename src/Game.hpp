@@ -14,6 +14,7 @@
 #include "TetrominoGenerator.hpp"
 #include "HUD.hpp"
 #include "TitleScreenShapes.hpp"
+#include "SoundManager.hpp"
 
 class Game
 {
@@ -137,4 +138,6 @@ private:
 	float initialInputDelay; // Delay before the first input is registered (not applied to Down key)
 	float heldInputDelay; // Delay between inputs while a key is held down after the initial delay
 	float inputTimer; // Timer for input delay
+
+	SoundManager soundManager;
 };

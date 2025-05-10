@@ -53,12 +53,20 @@ void SoundManager::playSound(SoundID soundID, float pitchVariancePercentage, flo
 	}
 }
 
-void SoundManager::cleanupSounds()
+void SoundManager::cleanupSounds(float fixedTimeStep, float interval)
 {
-	activeSounds.erase(
-		std::remove_if(activeSounds.begin(), activeSounds.end(),
-			[](const std::shared_ptr<sf::Sound>& sound) {
-				return sound->getStatus() == sf::Sound::Status::Stopped;
-			}),
-		activeSounds.end());
+	static float timeSinceLastCleanup = 0.f;
+	timeSinceLastCleanup += fixedTimeStep;
+
+	if (timeSinceLastCleanup >= interval)
+	{
+		timeSinceLastCleanup = 0.f;
+
+		activeSounds.erase(
+			std::remove_if(activeSounds.begin(), activeSounds.end(),
+				[](const std::shared_ptr<sf::Sound>& sound) {
+					return sound->getStatus() == sf::Sound::Status::Stopped;
+				}),
+			activeSounds.end());
+	}
 }

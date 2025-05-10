@@ -28,8 +28,8 @@ public:
 
 	void loadSounds();
 
-	// Remove any sounds that are no longer playing
-	void cleanupSounds();
+	// Removes any sounds that are no longer playing every `interval` seconds 
+	void cleanupSounds(float fixedTimeStep, float interval);
 
 	// Play a sound at specified volume with a random pitch variation.
 	// Note: pitchVariancePercentage 0.15f == +/- 15% variation
