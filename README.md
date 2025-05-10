@@ -30,3 +30,13 @@ git clone https://github.com/lukav1607/Tetris.git
 
 ## 📜 License
 This project is for educational and portfolio purposes.
+
+## Credits
+### Audio
+- [Music](https://pixabay.com/music/video-games-arcade-beat-323176/) by `NoCopyrightSound633`
+- [Game Start](https://freesound.org/people/HenryRichard/sounds/448262/) by `HenryRichard`
+- [Tetromino Collision](https://freesound.org/people/LloydEvans09/sounds/321805/) by `LloydEvans09`
+- [Line Clear](https://freesound.org/people/grunz/sounds/109662/) by `grunz`
+- [Level Up](https://freesound.org/people/SimonBay/sounds/439889/) by `SimonBay`
+- [Pause](https://freesound.org/people/LilMati/sounds/459344/) by `LilMati`
+- [Game Over](https://freesound.org/people/alanmcki/sounds/400581/) by `alanmcki`
