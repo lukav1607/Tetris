@@ -6,9 +6,9 @@ A Tetris game made in the course of a few days in my spare time using C++ and SF
 - It's Tetris :D
 
 ## 🚀 Features
-- All the classic Tetris shapes
-- Rotate and speed up shape movement
-- Score tracking and difficulty scaling with time
+- All the classic Tetris shapes which you can rotate and move
+- Fill lines to increase your score, fill multiple at once for a hefty multiplier
+- Every 10th line gets you to the next level, increasing score gain but making the shapes fall faster
 
 ## 🛠️ Made With
 C++
@@ -29,7 +29,7 @@ git clone https://github.com/lukav1607/Tetris.git
 4. Build and run the project!
 
 ## 📜 License
-This project is for educational and portfolio purposes.
+This project is for educational and portfolio purposes. Read full license [here](https://github.com/lukav1607/Tetris/blob/610ec8e3fd061e0b50d465e172697723f8fe17c2/LICENSE.md).
 
 ## Credits
 ### Audio
