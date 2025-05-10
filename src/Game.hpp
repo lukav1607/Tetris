@@ -13,6 +13,7 @@
 #include "Grid.hpp"
 #include "TetrominoGenerator.hpp"
 #include "HUD.hpp"
+#include "TitleScreenShapes.hpp"
 
 class Game
 {
@@ -58,13 +59,17 @@ private:
 
 	bool isPaused;
 	sf::RectangleShape transparentOverlay;
+	sf::Color transparentDefaultOverlayColor;
+	int transparentOverlayAlpha;
 	sf::Text pauseTitle;
 	sf::Text pauseText;
 
 	sf::Text titleScreenTitle;
 	sf::Text titleScreenText;
 	sf::Text titleScreenAuthor;
+	sf::Text titleScreenAuthorShadow;
 	float titleColorTransitionTime; // seconds per transition
+	TitleScreenShapes titleScreenShapes;
 
 	sf::Text gameOverTitle;
 	sf::Text gameOverScore;

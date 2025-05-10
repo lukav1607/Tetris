@@ -16,6 +16,8 @@
 Game::Game() :
 	gameState(GameState::TitleScreen),
 	backgroundColor(sf::Color(17, 17, 18)),
+	transparentDefaultOverlayColor(sf::Color(17, 17, 18, 150)),
+	transparentOverlayAlpha(transparentDefaultOverlayColor.a),
 	isPaused(false),
 	titleFont("assets/fonts/seguibl.ttf"),
 	textFont("assets/fonts/seguisb.ttf"),
@@ -23,7 +25,8 @@ Game::Game() :
 	pauseText(textFont, "Press ESC to continue", 40),
 	titleScreenTitle(textFont, "TETRIS", 160),
 	titleScreenText(textFont, "Press ENTER to start", 40),
-	titleScreenAuthor(textFont, "by Luka Vukorepa, 2025", 30),
+	titleScreenAuthor(textFont, "Luka Vukorepa 2025", 30),
+	titleScreenAuthorShadow(textFont, "Luka Vukorepa 2025", 30),
 	gameOverTitle(textFont, "GAME OVER", 80),
 	gameOverScore(textFont, "SCORE: 0", 50),
 	gameOverText(textFont, "    Press ESC to exit\nor ENTER to continue", 40),
@@ -76,7 +79,7 @@ Game::Game() :
 
 	transparentOverlay.setSize(sf::Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
 	transparentOverlay.setPosition(sf::Vector2f(0.f, 0.f));
-	transparentOverlay.setFillColor(sf::Color(50, 50, 50, 100));
+	transparentOverlay.setFillColor(transparentDefaultOverlayColor);
 
 	pauseTitle.setPosition(sf::Vector2f(WINDOW_WIDTH / 2.f - pauseTitle.getGlobalBounds().size.x / 2.f, WINDOW_HEIGHT / 2.f - pauseTitle.getGlobalBounds().size.y));
 	pauseTitle.setFillColor(sf::Color(255, 245, 210));
@@ -99,10 +102,13 @@ Game::Game() :
 	titleScreenText.setOutlineColor(sf::Color::White);
 	titleScreenText.setOutlineThickness(0.5f);
 
-	titleScreenAuthor.setPosition(sf::Vector2f(WINDOW_WIDTH / 2.f - titleScreenAuthor.getGlobalBounds().size.x / 2.f, WINDOW_HEIGHT - titleScreenTitle.getGlobalBounds().size.y * 1.5f));
+	titleScreenAuthor.setPosition(sf::Vector2f(WINDOW_WIDTH / 2.f - titleScreenAuthor.getGlobalBounds().size.x / 2.f, WINDOW_HEIGHT - titleScreenTitle.getGlobalBounds().size.y * 0.55f));
 	titleScreenAuthor.setFillColor(sf::Color(255, 245, 210));
-	titleScreenAuthor.setOutlineColor(sf::Color::White);
-	titleScreenAuthor.setOutlineThickness(0.5f);
+	titleScreenAuthor.setOutlineColor(sf::Color(40, 42, 50, 150));
+	titleScreenAuthor.setOutlineThickness(2.f);
+
+	titleScreenAuthorShadow.setPosition(sf::Vector2f(WINDOW_WIDTH / 2.f - titleScreenAuthor.getGlobalBounds().size.x / 2.f + 2, WINDOW_HEIGHT - titleScreenTitle.getGlobalBounds().size.y * 0.55f + 2));
+	titleScreenAuthorShadow.setFillColor(sf::Color(0, 0, 0, 200));
 
 	gameOverTitle.setPosition(sf::Vector2f(WINDOW_WIDTH / 2.f - gameOverTitle.getGlobalBounds().size.x / 2.f, WINDOW_HEIGHT / 2.f - gameOverTitle.getGlobalBounds().size.y * 2.f));
 	gameOverTitle.setFillColor(sf::Color(255, 245, 210));
@@ -253,6 +259,7 @@ void Game::update(float fixedTimeStep)
 			{
 				gameState = GameState::GameOver;
 				gameOverScore.setString("SCORE: " + std::to_string(score));
+				return;
 			}
 
 			generateNextTetromino();
@@ -303,6 +310,20 @@ void Game::update(float fixedTimeStep)
 		break;
 
 	case GameState::GameOver:
+		if (transparentOverlayAlpha < 200)
+		{
+			transparentOverlayAlpha += 1;
+			if (transparentOverlayAlpha > 200)
+				transparentOverlayAlpha = 200;
+
+			transparentOverlay.setFillColor(sf::Color
+			(
+				transparentDefaultOverlayColor.r,
+				transparentDefaultOverlayColor.g,
+				transparentDefaultOverlayColor.b,
+				transparentOverlayAlpha
+			));
+		}
 		break;
 	}
 }
@@ -314,8 +335,10 @@ void Game::render()
 	switch (gameState)
 	{
 	case GameState::TitleScreen:
+		window.draw(titleScreenShapes);
 		window.draw(titleScreenTitle);
 		window.draw(titleScreenText);
+		window.draw(titleScreenAuthorShadow);
 		window.draw(titleScreenAuthor);
 		break;
 
@@ -360,6 +383,8 @@ void Game::initializeWindow()
 void Game::resetGame()
 {
 	isPaused = false;
+	transparentOverlay.setFillColor(transparentDefaultOverlayColor);
+	transparentOverlayAlpha = transparentDefaultOverlayColor.a;
 	score = 0;
 	level = 0;
 	totalLinesCleared = 0;
