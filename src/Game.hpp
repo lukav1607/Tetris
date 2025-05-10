@@ -133,6 +133,7 @@ private:
 	HeldKey heldKey;
 	HeldKey heldKeyLastFrame;
 	bool wasKeyJustPressed;
+	bool canMoveAgain;
 
 	bool hasInitialDelayPassed;
 	float initialInputDelay; // Delay before the first input is registered (not applied to Down key)
@@ -140,4 +141,7 @@ private:
 	float inputTimer; // Timer for input delay
 
 	SoundManager soundManager;
+	sf::Music music;
+	float baseMusicVolume;
+	float musicVolume;
 };

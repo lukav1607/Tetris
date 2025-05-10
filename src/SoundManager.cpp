@@ -28,7 +28,7 @@ void SoundManager::loadSounds()
 	load(SoundID::GAME_OVER, "assets/sounds/382310__mountain_man__game-over-arcade.wav");
 }
 
-void SoundManager::playSound(SoundID soundID, float pitchVariancePercentage, float volumeMultiplier)
+void SoundManager::playSound(SoundID soundID, float pitchVariancePercentage, float basePitch, float volumeMultiplier)
 {
 	auto it = soundBuffers.find(soundID);
 	if (it != soundBuffers.end())
@@ -40,8 +40,27 @@ void SoundManager::playSound(SoundID soundID, float pitchVariancePercentage, flo
 			pitchVariancePercentage = 0.f;
 		}
 		if (pitchVariancePercentage != 0.f)
-			sound->setPitch(Utility::randomPitch(pitchVariancePercentage));
+			sound->setPitch(Utility::randomPitch(pitchVariancePercentage, basePitch));
 
+		sound->setVolume(volume * volumeMultiplier);
+		sound->play();
+
+		activeSounds.push_back(sound);
+	}
+	else
+	{
+		std::cerr << "Error: Sound ID not found!" << std::endl;
+	}
+}
+
+void SoundManager::playSoundAtPitch(SoundID soundID, float pitch, float volumeMultiplier)
+{
+	auto it = soundBuffers.find(soundID);
+	if (it != soundBuffers.end())
+	{
+		auto sound = std::make_shared<sf::Sound>(*it->second);
+
+		sound->setPitch(pitch);
 		sound->setVolume(volume * volumeMultiplier);
 		sound->play();
 

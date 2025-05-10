@@ -31,9 +31,12 @@ public:
 	// Removes any sounds that are no longer playing every `interval` seconds 
 	void cleanupSounds(float fixedTimeStep, float interval);
 
-	// Play a sound at specified volume with a random pitch variation.
+	// Play a sound at specified volume with a random pitch variation offset from `basePitch`
 	// Note: pitchVariancePercentage 0.15f == +/- 15% variation
-	void playSound(SoundID soundID, float pitchVariancePercentage = 0.f, float volumeMultiplier = 1.f);
+	void playSound(SoundID soundID, float pitchVariancePercentage = 0.f, float basePitch = 1.f, float volumeMultiplier = 1.f);
+
+	// Play a sound at specified volume with specified pitch.
+	void playSoundAtPitch(SoundID soundID, float pitch, float volumeMultiplier = 1.f);
 
 	float volume = 100.f;
 

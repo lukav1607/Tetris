@@ -53,9 +53,14 @@ Game::Game() :
 	inputTimer(0.f),
 	heldKey(HeldKey::None),
 	heldKeyLastFrame(HeldKey::None),
-	wasKeyJustPressed(false)
+	wasKeyJustPressed(false),
+	canMoveAgain(true),
+	music("assets/music/arcade-beat-323176.mp3"),
+	baseMusicVolume(30.f),
+	musicVolume(0.f)
 {
 	initializeWindow();
+	soundManager.loadSounds();
 	currentTetromino.updateDrawPosition();
 	positionNextTetromino();
 
@@ -162,8 +167,12 @@ void Game::processInput()
 	case GameState::TitleScreen:
 		if (Utility::isKeyReleased(sf::Keyboard::Key::Enter))
 		{
+			soundManager.playSound(SoundManager::SoundID::GAME_START, 0.f, 1.f, 1.5f);
 			gameState = GameState::InGame;
 			resetGame();
+
+			music.setVolume(0.f);
+			music.play();
 		}
 		else if (Utility::isKeyReleased(sf::Keyboard::Key::Escape))
 		{
@@ -177,6 +186,7 @@ void Game::processInput()
 			Utility::isKeyReleased(sf::Keyboard::Key::P))
 		{
 			isPaused = !isPaused;
+			soundManager.playSound(SoundManager::SoundID::PAUSE, 0.f, 1.f, 0.15f);
 		}
 
 		// Prevent other input while paused
@@ -198,12 +208,28 @@ void Game::processInput()
 			sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
 		{
 			heldKey = HeldKey::Left;
+			if (heldKeyLastFrame != heldKey && canMoveAgain)
+			{
+				currentTetromino.tryMove({ -1, 0 }, grid);
+				currentTetromino.updateDrawPosition();
+				canMoveAgain = false;
+				inputTimer = 0.f;
+				hasInitialDelayPassed = false;
+			}
 		}
 		// Move right
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) ||
 			sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
 		{
 			heldKey = HeldKey::Right;
+			if (heldKeyLastFrame != heldKey && canMoveAgain)
+			{
+				currentTetromino.tryMove({ 1, 0 }, grid);
+				currentTetromino.updateDrawPosition();
+				canMoveAgain = false;
+				inputTimer = 0.f;
+				hasInitialDelayPassed = false;
+			}
 		}
 		// Move down
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down) ||
@@ -236,12 +262,25 @@ void Game::update(float fixedTimeStep)
 	switch (gameState)
 	{
 	case GameState::TitleScreen:
+		music.stop();
+
 		updateTitleColor(fixedTimeStep);
 		pulseTitleText(fixedTimeStep);
 		break;
 
 	case GameState::InGame:
 		if (isPaused) return;
+
+		canMoveAgain = true;
+
+		if (music.getVolume() < baseMusicVolume)
+		{
+			musicVolume += 0.1f;
+			if (music.getVolume() > baseMusicVolume)
+				musicVolume = baseMusicVolume;
+
+			music.setVolume(musicVolume);
+		}
 
 		updateTetrominoMovement(fixedTimeStep);
 
@@ -259,8 +298,11 @@ void Game::update(float fixedTimeStep)
 			{
 				gameState = GameState::GameOver;
 				gameOverScore.setString("SCORE: " + std::to_string(score));
+				gameOverScore.setPosition(sf::Vector2f(WINDOW_WIDTH / 2.f - gameOverScore.getGlobalBounds().size.x / 2.f, WINDOW_HEIGHT / 2.f));
+				soundManager.playSound(SoundManager::SoundID::GAME_OVER, 0.f, 1.f, 2.5f);
 				return;
 			}
+			soundManager.playSound(SoundManager::SoundID::COLLISION, 0.25f, 3.5f, 0.3f);
 
 			generateNextTetromino();
 			hasTetrominoCollidedDownward = false;
@@ -291,7 +333,9 @@ void Game::update(float fixedTimeStep)
 			}
 		}
 		if (!areLinesFlashing && !filledLines.empty())
-		{			
+		{
+			int previousLevel = level;
+
 			lineFlashTimer = 0.f;
 			lineFlashPhaseTimer = 0.f;
 
@@ -299,17 +343,30 @@ void Game::update(float fixedTimeStep)
 			totalLinesCleared += filledLines.size();
 			level = totalLinesCleared / LINES_PER_LEVEL;
 			tetrominoMovementDelay = std::max(MINIMUM_MOVEMENT_DELAY, BASE_MOVEMENT_DELAY - (level * MOVEMENT_DELAY_DECREASE));
+			if (previousLevel != level)
+				soundManager.playSoundAtPitch(SoundManager::SoundID::LEVEL_UP, 1.0f + static_cast<float>((level - 1) * 0.05f));
 
 			hud.updateScore(score);
 			hud.updateLevel(level);
 			hud.updateLinesCleared(totalLinesCleared);
 
 			grid.clearFilledLinesAndPushDown(filledLines);
+			soundManager.playSoundAtPitch(SoundManager::SoundID::LINE_CLEAR, 1.0f + static_cast<float>((filledLines.size() - 1) * 0.25f), 1.f);
+
 			filledLines.clear();
 		}
 		break;
 
 	case GameState::GameOver:
+		if (music.getVolume() > 0.f)
+		{
+			musicVolume -= 0.1f;
+			if (music.getVolume() < 0.f)
+				musicVolume = 0.f;
+
+			music.setVolume(musicVolume);
+		}
+
 		if (transparentOverlayAlpha < 200)
 		{
 			transparentOverlayAlpha += 1;
@@ -326,6 +383,7 @@ void Game::update(float fixedTimeStep)
 		}
 		break;
 	}
+	soundManager.cleanupSounds(fixedTimeStep, 20.f);
 }
 
 void Game::render()
@@ -464,7 +522,7 @@ void Game::updateTetrominoMovement(float fixedTimeStep)
 {
 	/* INPUT */
 	// If held key was just changed or a key was just pressed
-	if (heldKeyLastFrame != heldKey && heldKey != HeldKey::None)
+	/*if (heldKeyLastFrame != heldKey && heldKey != HeldKey::None)
 	{
 		inputTimer = 0.f;
 		hasInitialDelayPassed = false;
@@ -478,7 +536,7 @@ void Game::updateTetrominoMovement(float fixedTimeStep)
 				hasTetrominoCollidedDownward = true;
 
 		currentTetromino.updateDrawPosition();
-	}
+	}*/
 	// If a key is held down
 	if (heldKey != HeldKey::None)
 	{

@@ -31,12 +31,12 @@ sf::Color Utility::lerpColor(const sf::Color& a, const sf::Color& b, float t)
 	);
 }
 
-float Utility::randomPitch(float variationPercent)
+float Utility::randomPitch(float variationPercent, float basePitch)
 {
 	static std::random_device rd;
 	static std::mt19937 gen(rd());
 	static std::uniform_real_distribution<float> dist(-0.5f, 0.5f);
 
 	float randomFactor = dist(gen);
-	return 1.0f + randomFactor * 2.0f * variationPercent;
+	return basePitch + randomFactor * 2.0f * variationPercent;
 }

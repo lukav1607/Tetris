@@ -19,5 +19,5 @@ namespace Utility
 	sf::Color lerpColor(const sf::Color& a, const sf::Color& b, float t);
 	// Generates a random pitch value based on a given variation percentage.
 	// Example use: variationPercent 0.15f == 15% variation
-	float randomPitch(float variationPercent);
+	float randomPitch(float variationPercent, float basePitch = 1.f);
 }
