@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <memory>
 #include <unordered_map>
 #include <SFML/Audio.hpp>
 

@@ -32,7 +32,7 @@ else()
     target_link_libraries("Tetris" PRIVATE SFML::System SFML::Window SFML::Graphics SFML::Audio)
 endif()
 
-target_compile_definitions("Tetris" PRIVATE SFML_STATIC)
+# target_compile_definitions("Tetris" PRIVATE SFML_STATIC)
 
 # Prevent console window on Windows (does not affect Debug mode)
 if(MSVC AND CMAKE_BUILD_TYPE STREQUAL "Release")

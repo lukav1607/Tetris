@@ -8,6 +8,7 @@
 // ================================================================================================
 
 #include <iostream>
+#include <algorithm>
 #include "SoundManager.hpp"
 #include "Utility.hpp"
 

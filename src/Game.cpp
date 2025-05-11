@@ -475,7 +475,7 @@ void Game::resetGame()
 void Game::updateTitleColor(float fixedTimeStep)
 {
 	static float titleColorTimer = 0.f;
-	static unsigned currentColorIndex = 0U;
+	static size_t currentColorIndex = 0U;
 
 	titleColorTimer += fixedTimeStep;
 	float t = std::min(titleColorTimer / titleColorTransitionTime, 1.f);
@@ -489,7 +489,7 @@ void Game::updateTitleColor(float fixedTimeStep)
 	if (t >= 1.f)
 	{
 		titleColorTimer = 0.f;
-		currentColorIndex = static_cast<unsigned>((currentColorIndex + 1) % Tetromino::COLORS.size());
+		currentColorIndex = (currentColorIndex + 1) % Tetromino::COLORS.size();
 	}
 }
 
@@ -507,7 +507,7 @@ int Game::getScoreWorth(unsigned linesCleared)
 	if (linesCleared < 1 || linesCleared > 4)
 		return 0;
 
-	return baseScoresPerLine.at(linesCleared - 1) * (level + 1);
+	return baseScoresPerLine.at(static_cast<size_t>(linesCleared - 1)) * (level + 1);
 }
 
 bool Game::isGameOver() const
