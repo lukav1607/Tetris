@@ -507,7 +507,7 @@ int Game::getScoreWorth(unsigned linesCleared)
 	if (linesCleared < 1 || linesCleared > 4)
 		return 0;
 
-	return baseScoresPerLine.at((linesCleared - 1) * (level + 1));
+	return baseScoresPerLine.at(linesCleared - 1) * (level + 1);
 }
 
 bool Game::isGameOver() const
