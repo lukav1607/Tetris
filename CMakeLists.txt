@@ -24,7 +24,14 @@ add_executable(
     "src/TitleScreenShapes.cpp"
     "src/SoundManager.cpp")
 target_compile_features("Tetris" PRIVATE cxx_std_17)
-target_link_libraries("Tetris" PRIVATE SFML::Main SFML::System SFML::Window SFML::Graphics SFML::Audio)
+
+# Don't link SFML::Main on non-Windows platforms
+if(WIN32)
+    target_link_libraries("Tetris" PRIVATE SFML::Main SFML::System SFML::Window SFML::Graphics SFML::Audio)
+else()
+    target_link_libraries("Tetris" PRIVATE SFML::System SFML::Window SFML::Graphics SFML::Audio)
+endif()
+
 target_compile_definitions("Tetris" PRIVATE SFML_STATIC)
 
 # Prevent console window on Windows (does not affect Debug mode)
